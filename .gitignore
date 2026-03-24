@@ -39,6 +39,7 @@ nbdist/
 ######################################################################
 # Others
 *.log
+*.bundle
 logs/
 *.xml.versionsBackup
 *.swp
