@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduCommentMapper">
+    <resultMap type="EduComment" id="EduCommentResult">
+        <result property="commentId" column="comment_id"/>
+        <result property="resourceId" column="resource_id"/>
+        <result property="resourceTitle" column="resource_title"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="parentUserName" column="parent_user_name"/>
+        <result property="content" column="content"/>
+        <result property="auditStatus" column="audit_status"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="status" column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectCommentVo">
+        select comment_id, resource_id, resource_title, user_id, user_name, parent_id, parent_user_name,
+               content, audit_status, like_count, status, del_flag, create_by, create_time, update_by, update_time, remark
+          from edu_comment
+    </sql>
+
+    <select id="selectCommentList" parameterType="EduComment" resultMap="EduCommentResult">
+        <include refid="selectCommentVo"/>
+        <where>
+            del_flag = '0'
+            <if test="resourceTitle != null and resourceTitle != ''">and resource_title like concat('%', #{resourceTitle}, '%')</if>
+            <if test="userName != null and userName != ''">and user_name like concat('%', #{userName}, '%')</if>
+            <if test="resourceId != null">and resource_id = #{resourceId}</if>
+            <if test="userId != null">and user_id = #{userId}</if>
+            <if test="auditStatus != null and auditStatus != ''">and audit_status = #{auditStatus}</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+        </where>
+        order by comment_id desc
+    </select>
+
+    <select id="selectCommentById" parameterType="Long" resultMap="EduCommentResult">
+        <include refid="selectCommentVo"/>
+        where comment_id = #{commentId}
+    </select>
+
+    <select id="selectApprovedCommentsByResourceId" parameterType="Long" resultMap="EduCommentResult">
+        <include refid="selectCommentVo"/>
+        where resource_id = #{resourceId} and del_flag = '0' and status = '0' and audit_status = 'approved'
+        order by parent_id asc, comment_id asc
+    </select>
+
+    <insert id="insertComment" parameterType="EduComment" useGeneratedKeys="true" keyProperty="commentId">
+        insert into edu_comment(resource_id, resource_title, user_id, user_name, parent_id, parent_user_name, content, audit_status, like_count, status, create_by, create_time, remark)
+        values(#{resourceId}, #{resourceTitle}, #{userId}, #{userName}, #{parentId}, #{parentUserName}, #{content}, #{auditStatus}, #{likeCount}, #{status}, #{createBy}, sysdate(), #{remark})
+    </insert>
+
+    <update id="updateComment" parameterType="EduComment">
+        update edu_comment
+        set content = #{content},
+            audit_status = #{auditStatus},
+            like_count = #{likeCount},
+            status = #{status},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        where comment_id = #{commentId}
+    </update>
+
+    <update id="auditComment">
+        update edu_comment
+        set audit_status = #{auditStatus},
+            remark = #{remark},
+            update_time = sysdate()
+        where comment_id = #{commentId}
+    </update>
+
+    <update id="deleteCommentByIds">
+        update edu_comment set del_flag = '2' where comment_id in
+        <foreach collection="array" item="commentId" open="(" separator="," close=")">
+            #{commentId}
+        </foreach>
+    </update>
+</mapper>

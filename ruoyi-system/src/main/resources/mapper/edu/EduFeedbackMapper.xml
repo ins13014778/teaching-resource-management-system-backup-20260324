@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduFeedbackMapper">
+    <resultMap type="EduFeedback" id="EduFeedbackResult">
+        <result property="feedbackId" column="feedback_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="contact" column="contact"/>
+        <result property="status" column="status"/>
+        <result property="replyContent" column="reply_content"/>
+        <result property="replyBy" column="reply_by"/>
+        <result property="replyTime" column="reply_time"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectFeedbackVo">
+        select feedback_id, user_id, user_name, title, content, contact, status, reply_content, reply_by, reply_time,
+               del_flag, create_by, create_time, update_by, update_time, remark from sys_feedback
+    </sql>
+
+    <select id="selectFeedbackList" parameterType="EduFeedback" resultMap="EduFeedbackResult">
+        <include refid="selectFeedbackVo"/>
+        <where>
+            del_flag = '0'
+            <if test="userName != null and userName != ''">and user_name like concat('%', #{userName}, '%')</if>
+            <if test="title != null and title != ''">and title like concat('%', #{title}, '%')</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+            <if test="userId != null">and user_id = #{userId}</if>
+        </where>
+        order by feedback_id desc
+    </select>
+
+    <select id="selectFeedbackById" parameterType="Long" resultMap="EduFeedbackResult">
+        <include refid="selectFeedbackVo"/> where feedback_id = #{feedbackId}
+    </select>
+
+    <insert id="insertFeedback" parameterType="EduFeedback" useGeneratedKeys="true" keyProperty="feedbackId">
+        insert into sys_feedback(user_id, user_name, title, content, contact, status, create_by, create_time, remark)
+        values(#{userId}, #{userName}, #{title}, #{content}, #{contact}, #{status}, #{createBy}, sysdate(), #{remark})
+    </insert>
+
+    <update id="updateFeedback" parameterType="EduFeedback">
+        update sys_feedback
+        set status = #{status},
+            reply_content = #{replyContent},
+            reply_by = #{replyBy},
+            reply_time = sysdate(),
+            update_by = #{updateBy},
+            update_time = sysdate(),
+            remark = #{remark}
+        where feedback_id = #{feedbackId}
+    </update>
+
+    <update id="deleteFeedbackByIds">
+        update sys_feedback set del_flag = '2' where feedback_id in
+        <foreach collection="array" item="feedbackId" open="(" separator="," close=")">
+            #{feedbackId}
+        </foreach>
+    </update>
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduReportMapper">
+    <resultMap type="EduReport" id="EduReportResult">
+        <result property="reportId" column="report_id"/>
+        <result property="reportType" column="report_type"/>
+        <result property="targetId" column="target_id"/>
+        <result property="targetTitle" column="target_title"/>
+        <result property="reporterId" column="reporter_id"/>
+        <result property="reporterName" column="reporter_name"/>
+        <result property="reasonType" column="reason_type"/>
+        <result property="reportContent" column="report_content"/>
+        <result property="status" column="status"/>
+        <result property="handleResult" column="handle_result"/>
+        <result property="handlerId" column="handler_id"/>
+        <result property="handlerName" column="handler_name"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectReportVo">
+        select report_id, report_type, target_id, target_title, reporter_id, reporter_name, reason_type, report_content,
+               status, handle_result, handler_id, handler_name, del_flag, create_by, create_time, update_by, update_time, remark
+          from edu_report
+    </sql>
+
+    <select id="selectReportList" parameterType="EduReport" resultMap="EduReportResult">
+        <include refid="selectReportVo"/>
+        <where>
+            del_flag = '0'
+            <if test="reportType != null and reportType != ''">and report_type = #{reportType}</if>
+            <if test="reporterName != null and reporterName != ''">and reporter_name like concat('%', #{reporterName}, '%')</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+            <if test="reporterId != null">and reporter_id = #{reporterId}</if>
+        </where>
+        order by report_id desc
+    </select>
+
+    <select id="selectReportById" parameterType="Long" resultMap="EduReportResult">
+        <include refid="selectReportVo"/> where report_id = #{reportId}
+    </select>
+
+    <insert id="insertReport" parameterType="EduReport" useGeneratedKeys="true" keyProperty="reportId">
+        insert into edu_report(report_type, target_id, target_title, reporter_id, reporter_name, reason_type, report_content, status, create_by, create_time, remark)
+        values(#{reportType}, #{targetId}, #{targetTitle}, #{reporterId}, #{reporterName}, #{reasonType}, #{reportContent}, #{status}, #{createBy}, sysdate(), #{remark})
+    </insert>
+
+    <update id="updateReport" parameterType="EduReport">
+        update edu_report
+        set status = #{status},
+            handle_result = #{handleResult},
+            handler_id = #{handlerId},
+            handler_name = #{handlerName},
+            update_by = #{updateBy},
+            update_time = sysdate(),
+            remark = #{remark}
+        where report_id = #{reportId}
+    </update>
+
+    <update id="deleteReportByIds">
+        update edu_report set del_flag = '2' where report_id in
+        <foreach collection="array" item="reportId" open="(" separator="," close=")">
+            #{reportId}
+        </foreach>
+    </update>
+</mapper>

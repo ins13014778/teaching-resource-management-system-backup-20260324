@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduTeacherStudentGrantMapper">
+
+    <resultMap type="EduTeacherStudentGrant" id="EduTeacherStudentGrantResult">
+        <result property="grantId" column="grant_id"/>
+        <result property="teacherUserId" column="teacher_user_id"/>
+        <result property="teacherName" column="teacher_name"/>
+        <result property="studentUserId" column="student_user_id"/>
+        <result property="studentName" column="student_name"/>
+        <result property="courseName" column="course_name"/>
+        <result property="grantPreset" column="grant_preset"/>
+        <result property="grantPerms" column="grant_perms"/>
+        <result property="status" column="status"/>
+        <result property="expiresAt" column="expires_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectGrantVo">
+        select grant_id, teacher_user_id, teacher_name, student_user_id, student_name,
+               course_name, grant_preset, grant_perms, status, expires_at,
+               create_by, create_time, update_by, update_time, remark
+        from edu_teacher_student_grant
+    </sql>
+
+    <select id="selectGrantList" parameterType="EduTeacherStudentGrant" resultMap="EduTeacherStudentGrantResult">
+        <include refid="selectGrantVo"/>
+        <where>
+            <if test="teacherUserId != null">
+                and teacher_user_id = #{teacherUserId}
+            </if>
+            <if test="studentUserId != null">
+                and student_user_id = #{studentUserId}
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                and teacher_name like concat('%', #{teacherName}, '%')
+            </if>
+            <if test="studentName != null and studentName != ''">
+                and student_name like concat('%', #{studentName}, '%')
+            </if>
+            <if test="courseName != null and courseName != ''">
+                and course_name like concat('%', #{courseName}, '%')
+            </if>
+            <if test="grantPreset != null and grantPreset != ''">
+                and grant_preset = #{grantPreset}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+        </where>
+        order by grant_id desc
+    </select>
+
+    <select id="selectGrantById" parameterType="Long" resultMap="EduTeacherStudentGrantResult">
+        <include refid="selectGrantVo"/>
+        where grant_id = #{grantId}
+    </select>
+
+    <insert id="insertGrant" parameterType="EduTeacherStudentGrant" useGeneratedKeys="true" keyProperty="grantId">
+        insert into edu_teacher_student_grant(
+            teacher_user_id, teacher_name, student_user_id, student_name,
+            course_name, grant_preset, grant_perms, status, expires_at,
+            create_by, create_time, remark
+        ) values (
+            #{teacherUserId}, #{teacherName}, #{studentUserId}, #{studentName},
+            #{courseName}, #{grantPreset}, #{grantPerms}, #{status}, #{expiresAt},
+            #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateGrant" parameterType="EduTeacherStudentGrant">
+        update edu_teacher_student_grant
+        <set>
+            teacher_user_id = #{teacherUserId},
+            teacher_name = #{teacherName},
+            student_user_id = #{studentUserId},
+            student_name = #{studentName},
+            course_name = #{courseName},
+            grant_preset = #{grantPreset},
+            grant_perms = #{grantPerms},
+            status = #{status},
+            expires_at = #{expiresAt},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        </set>
+        where grant_id = #{grantId}
+    </update>
+
+    <delete id="deleteGrantByIds">
+        delete from edu_teacher_student_grant
+        where grant_id in
+        <foreach collection="array" item="grantId" open="(" separator="," close=")">
+            #{grantId}
+        </foreach>
+    </delete>
+
+    <select id="selectActiveCourseNamesByStudentId" parameterType="Long" resultType="String">
+        select distinct course_name
+        from edu_teacher_student_grant
+        where student_user_id = #{studentUserId}
+          and status = '0'
+          and (expires_at is null or expires_at >= now())
+          and ifnull(course_name, '') &lt;&gt; ''
+        order by course_name asc
+    </select>
+
+    <select id="selectActiveGrantListByCourseName" parameterType="String" resultMap="EduTeacherStudentGrantResult">
+        <include refid="selectGrantVo"/>
+        where course_name = #{courseName}
+          and status = '0'
+          and (expires_at is null or expires_at >= now())
+        order by grant_id desc
+    </select>
+
+</mapper>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduUserQuotaMapper">
+
+    <resultMap type="EduUserQuota" id="EduUserQuotaResult">
+        <result property="quotaId" column="quota_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="roleNames" column="role_names"/>
+        <result property="storageGb" column="storage_gb"/>
+        <result property="uploadMb" column="upload_mb"/>
+        <result property="usedStorageMb" column="used_storage_mb"/>
+        <result property="status" column="status"/>
+        <result property="allowShare" column="allow_share"/>
+        <result property="allowPasswordShare" column="allow_password_share"/>
+        <result property="maxShareDays" column="max_share_days"/>
+        <result property="banReason" column="ban_reason"/>
+        <result property="userStatus" column="user_status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectQuotaVo">
+        select q.quota_id, q.user_id, u.user_name, u.nick_name, d.dept_name,
+               (select group_concat(r.role_name separator ',')
+                  from sys_user_role ur
+                  left join sys_role r on r.role_id = ur.role_id
+                 where ur.user_id = q.user_id) as role_names,
+               q.storage_gb, q.upload_mb, q.used_storage_mb, q.status,
+               q.allow_share, q.allow_password_share, q.max_share_days, q.ban_reason,
+               u.status as user_status, q.create_by, q.create_time, q.update_by, q.update_time, q.remark
+        from edu_user_quota q
+        left join sys_user u on u.user_id = q.user_id
+        left join sys_dept d on d.dept_id = u.dept_id
+    </sql>
+
+    <select id="selectQuotaList" parameterType="EduUserQuota" resultMap="EduUserQuotaResult">
+        <include refid="selectQuotaVo"/>
+        <where>
+            <if test="userName != null and userName != ''">
+                and u.user_name like concat('%', #{userName}, '%')
+            </if>
+            <if test="nickName != null and nickName != ''">
+                and u.nick_name like concat('%', #{nickName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                and q.status = #{status}
+            </if>
+            <if test="userStatus != null and userStatus != ''">
+                and u.status = #{userStatus}
+            </if>
+        </where>
+        order by q.quota_id asc
+    </select>
+
+    <select id="selectQuotaById" parameterType="Long" resultMap="EduUserQuotaResult">
+        <include refid="selectQuotaVo"/>
+        where q.quota_id = #{quotaId}
+    </select>
+
+    <insert id="insertQuota" parameterType="EduUserQuota" useGeneratedKeys="true" keyProperty="quotaId">
+        insert into edu_user_quota
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="storageGb != null">storage_gb,</if>
+            <if test="uploadMb != null">upload_mb,</if>
+            <if test="usedStorageMb != null">used_storage_mb,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="allowShare != null and allowShare != ''">allow_share,</if>
+            <if test="allowPasswordShare != null and allowPasswordShare != ''">allow_password_share,</if>
+            <if test="maxShareDays != null">max_share_days,</if>
+            <if test="banReason != null">ban_reason,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            create_time,
+            <if test="updateBy != null and updateBy != ''">update_by,</if>
+            update_time,
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="storageGb != null">#{storageGb},</if>
+            <if test="uploadMb != null">#{uploadMb},</if>
+            <if test="usedStorageMb != null">#{usedStorageMb},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="allowShare != null and allowShare != ''">#{allowShare},</if>
+            <if test="allowPasswordShare != null and allowPasswordShare != ''">#{allowPasswordShare},</if>
+            <if test="maxShareDays != null">#{maxShareDays},</if>
+            <if test="banReason != null">#{banReason},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            sysdate(),
+            <if test="updateBy != null and updateBy != ''">#{updateBy},</if>
+            sysdate(),
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateQuota" parameterType="EduUserQuota">
+        update edu_user_quota
+        <set>
+            storage_gb = #{storageGb},
+            upload_mb = #{uploadMb},
+            used_storage_mb = #{usedStorageMb},
+            status = #{status},
+            allow_share = #{allowShare},
+            allow_password_share = #{allowPasswordShare},
+            max_share_days = #{maxShareDays},
+            ban_reason = #{banReason},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        </set>
+        where quota_id = #{quotaId}
+    </update>
+
+    <update id="updateUserStatus" parameterType="EduUserQuota">
+        update sys_user
+        set status = #{userStatus}
+        where user_id = #{userId}
+    </update>
+
+</mapper>

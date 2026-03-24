@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduGlobalConfigMapper">
+
+    <resultMap type="EduGlobalConfig" id="EduGlobalConfigResult">
+        <result property="configId" column="config_id"/>
+        <result property="globalUploadMb" column="global_upload_mb"/>
+        <result property="videoUploadMb" column="video_upload_mb"/>
+        <result property="designUploadMb" column="design_upload_mb"/>
+        <result property="teacherDefaultStorageGb" column="teacher_default_storage_gb"/>
+        <result property="teacherDefaultUploadMb" column="teacher_default_upload_mb"/>
+        <result property="studentDefaultStorageGb" column="student_default_storage_gb"/>
+        <result property="studentDefaultUploadMb" column="student_default_upload_mb"/>
+        <result property="shareDefaultDays" column="share_default_days"/>
+        <result property="shareMaxDays" column="share_max_days"/>
+        <result property="passwordShareEnable" column="password_share_enable"/>
+        <result property="teacherShareEnable" column="teacher_share_enable"/>
+        <result property="studentShareEnable" column="student_share_enable"/>
+        <result property="recycleKeepDays" column="recycle_keep_days"/>
+        <result property="storageWarnPercent" column="storage_warn_percent"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <select id="selectCurrentConfig" resultMap="EduGlobalConfigResult">
+        select config_id, global_upload_mb, video_upload_mb, design_upload_mb,
+               teacher_default_storage_gb, teacher_default_upload_mb,
+               student_default_storage_gb, student_default_upload_mb,
+               share_default_days, share_max_days, password_share_enable,
+               teacher_share_enable, student_share_enable, recycle_keep_days,
+               storage_warn_percent, create_by, create_time, update_by, update_time, remark
+        from edu_global_config
+        order by config_id asc
+        limit 1
+    </select>
+
+    <update id="updateConfig" parameterType="EduGlobalConfig">
+        update edu_global_config
+        <set>
+            global_upload_mb = #{globalUploadMb},
+            video_upload_mb = #{videoUploadMb},
+            design_upload_mb = #{designUploadMb},
+            teacher_default_storage_gb = #{teacherDefaultStorageGb},
+            teacher_default_upload_mb = #{teacherDefaultUploadMb},
+            student_default_storage_gb = #{studentDefaultStorageGb},
+            student_default_upload_mb = #{studentDefaultUploadMb},
+            share_default_days = #{shareDefaultDays},
+            share_max_days = #{shareMaxDays},
+            password_share_enable = #{passwordShareEnable},
+            teacher_share_enable = #{teacherShareEnable},
+            student_share_enable = #{studentShareEnable},
+            recycle_keep_days = #{recycleKeepDays},
+            storage_warn_percent = #{storageWarnPercent},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        </set>
+        where config_id = #{configId}
+    </update>
+
+</mapper>

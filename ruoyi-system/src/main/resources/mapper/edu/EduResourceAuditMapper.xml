@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduResourceAuditMapper">
+
+    <resultMap type="EduResourceAudit" id="EduResourceAuditResult">
+        <result property="auditId" column="audit_id"/>
+        <result property="resourceId" column="resource_id"/>
+        <result property="resourceTitle" column="resource_title"/>
+        <result property="auditStatus" column="audit_status"/>
+        <result property="auditReason" column="audit_reason"/>
+        <result property="auditorId" column="auditor_id"/>
+        <result property="auditorName" column="auditor_name"/>
+        <result property="auditTime" column="audit_time"/>
+        <result property="resourceType" column="resource_type"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="courseName" column="course_name"/>
+        <result property="uploaderName" column="uploader_name"/>
+        <result property="publishStatus" column="publish_status"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectAuditVo">
+        select a.audit_id, a.resource_id, a.resource_title, a.audit_status, a.audit_reason,
+               a.auditor_id, a.auditor_name, a.audit_time, a.remark, a.create_by, a.create_time, a.update_by, a.update_time,
+               r.resource_type, r.category_name, r.course_name, r.uploader_name, r.publish_status
+        from edu_resource_audit a
+        left join edu_resource r on r.resource_id = a.resource_id
+    </sql>
+
+    <select id="selectAuditList" parameterType="EduResourceAudit" resultMap="EduResourceAuditResult">
+        <include refid="selectAuditVo"/>
+        <where>
+            1 = 1
+            <if test="resourceTitle != null and resourceTitle != ''">
+                and a.resource_title like concat('%', #{resourceTitle}, '%')
+            </if>
+            <if test="auditStatus != null and auditStatus != ''">
+                and a.audit_status = #{auditStatus}
+            </if>
+            <if test="resourceType != null and resourceType != ''">
+                and r.resource_type = #{resourceType}
+            </if>
+            <if test="uploaderName != null and uploaderName != ''">
+                and r.uploader_name like concat('%', #{uploaderName}, '%')
+            </if>
+            <if test="publishStatus != null and publishStatus != ''">
+                and r.publish_status = #{publishStatus}
+            </if>
+        </where>
+        order by a.audit_id desc
+    </select>
+
+    <select id="selectAuditById" parameterType="Long" resultMap="EduResourceAuditResult">
+        <include refid="selectAuditVo"/>
+        where a.audit_id = #{auditId}
+    </select>
+
+    <select id="selectPendingAuditByResourceId" parameterType="Long" resultMap="EduResourceAuditResult">
+        <include refid="selectAuditVo"/>
+        where a.resource_id = #{resourceId}
+          and a.audit_status = 'pending'
+        order by a.audit_id desc
+        limit 1
+    </select>
+
+    <insert id="insertAudit" parameterType="EduResourceAudit" useGeneratedKeys="true" keyProperty="auditId">
+        insert into edu_resource_audit(
+            resource_id, resource_title, audit_status, audit_reason,
+            auditor_id, auditor_name, audit_time, remark, create_by, create_time
+        ) values (
+            #{resourceId}, #{resourceTitle}, #{auditStatus}, #{auditReason},
+            #{auditorId}, #{auditorName}, #{auditTime}, #{remark}, #{createBy}, sysdate()
+        )
+    </insert>
+
+    <update id="updateAudit" parameterType="EduResourceAudit">
+        update edu_resource_audit
+        set audit_status = #{auditStatus},
+            audit_reason = #{auditReason},
+            auditor_id = #{auditorId},
+            auditor_name = #{auditorName},
+            audit_time = #{auditTime},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        where audit_id = #{auditId}
+    </update>
+
+</mapper>

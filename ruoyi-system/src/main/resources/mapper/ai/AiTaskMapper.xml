@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AiTaskMapper">
+    <resultMap type="AiTask" id="AiTaskResult">
+        <result property="taskId" column="task_id"/>
+        <result property="taskType" column="task_type"/>
+        <result property="resourceId" column="resource_id"/>
+        <result property="resourceTitle" column="resource_title"/>
+        <result property="triggerScene" column="trigger_scene"/>
+        <result property="taskStatus" column="task_status"/>
+        <result property="resultJson" column="result_json"/>
+        <result property="errorMsg" column="error_msg"/>
+        <result property="startTime" column="start_time"/>
+        <result property="finishTime" column="finish_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+    <sql id="selectTaskVo">select task_id, task_type, resource_id, resource_title, trigger_scene, task_status, result_json, error_msg, start_time, finish_time, create_by, create_time, update_by, update_time, remark from ai_task</sql>
+    <select id="selectTaskList" parameterType="AiTask" resultMap="AiTaskResult"><include refid="selectTaskVo"/><where><if test="taskType != null and taskType != ''">and task_type = #{taskType}</if><if test="resourceId != null">and resource_id = #{resourceId}</if><if test="resourceTitle != null and resourceTitle != ''">and resource_title like concat('%', #{resourceTitle}, '%')</if><if test="triggerScene != null and triggerScene != ''">and trigger_scene = #{triggerScene}</if><if test="taskStatus != null and taskStatus != ''">and task_status = #{taskStatus}</if></where> order by task_id desc</select>
+    <select id="selectTaskById" parameterType="Long" resultMap="AiTaskResult"><include refid="selectTaskVo"/> where task_id=#{taskId}</select>
+    <insert id="insertTask" parameterType="AiTask" useGeneratedKeys="true" keyProperty="taskId">insert into ai_task(task_type, resource_id, resource_title, trigger_scene, task_status, result_json, error_msg, start_time, finish_time, create_by, create_time, remark) values(#{taskType}, #{resourceId}, #{resourceTitle}, #{triggerScene}, #{taskStatus}, #{resultJson}, #{errorMsg}, #{startTime}, #{finishTime}, #{createBy}, sysdate(), #{remark})</insert>
+    <delete id="deleteTaskByIds">delete from ai_task where task_id in <foreach collection="array" item="taskId" open="(" separator="," close=")">#{taskId}</foreach></delete>
+</mapper>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduResourceMapper">
+
+    <resultMap type="EduResource" id="EduResourceResult">
+        <result property="resourceId" column="resource_id"/>
+        <result property="resourceTitle" column="resource_title"/>
+        <result property="resourceType" column="resource_type"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="courseName" column="course_name"/>
+        <result property="tagNames" column="tag_names"/>
+        <result property="fileUrl" column="file_url"/>
+        <result property="coverUrl" column="cover_url"/>
+        <result property="resourceVersion" column="resource_version"/>
+        <result property="fileSizeMb" column="file_size_mb"/>
+        <result property="uploaderId" column="uploader_id"/>
+        <result property="uploaderName" column="uploader_name"/>
+        <result property="auditStatus" column="audit_status"/>
+        <result property="publishStatus" column="publish_status"/>
+        <result property="recommendFlag" column="recommend_flag"/>
+        <result property="downloadCount" column="download_count"/>
+        <result property="favoriteCount" column="favorite_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="resourceDesc" column="resource_desc"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectResourceVo">
+        select resource_id, resource_title, resource_type, category_name, course_name, tag_names,
+               file_url, cover_url, resource_version, file_size_mb, uploader_id, uploader_name,
+               audit_status, publish_status, recommend_flag, download_count, favorite_count, like_count,
+               resource_desc, del_flag, remark, create_by, create_time, update_by, update_time
+        from edu_resource
+    </sql>
+
+    <select id="selectResourceList" parameterType="EduResource" resultMap="EduResourceResult">
+        <include refid="selectResourceVo"/>
+        <where>
+            del_flag = '0'
+            <if test="resourceTitle != null and resourceTitle != ''">
+                and resource_title like concat('%', #{resourceTitle}, '%')
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (resource_title like concat('%', #{keyword}, '%')
+                or resource_desc like concat('%', #{keyword}, '%')
+                or tag_names like concat('%', #{keyword}, '%')
+                or category_name like concat('%', #{keyword}, '%')
+                or course_name like concat('%', #{keyword}, '%')
+                or uploader_name like concat('%', #{keyword}, '%'))
+            </if>
+            <if test="resourceType != null and resourceType != ''">
+                and resource_type = #{resourceType}
+            </if>
+            <if test="categoryName != null and categoryName != ''">
+                and category_name = #{categoryName}
+            </if>
+            <if test="courseName != null and courseName != ''">
+                and course_name like concat('%', #{courseName}, '%')
+            </if>
+            <if test="courseNameScope != null and courseNameScope.size() > 0">
+                and course_name in
+                <foreach collection="courseNameScope" item="courseNameItem" open="(" separator="," close=")">
+                    #{courseNameItem}
+                </foreach>
+            </if>
+            <if test="tagNames != null and tagNames != ''">
+                and tag_names like concat('%', #{tagNames}, '%')
+            </if>
+            <if test="uploaderId != null">
+                and uploader_id = #{uploaderId}
+            </if>
+            <if test="uploaderName != null and uploaderName != ''">
+                and uploader_name like concat('%', #{uploaderName}, '%')
+            </if>
+            <if test="auditStatus != null and auditStatus != ''">
+                and audit_status = #{auditStatus}
+            </if>
+            <if test="publishStatus != null and publishStatus != ''">
+                and publish_status = #{publishStatus}
+            </if>
+            <if test="recommendFlag != null and recommendFlag != ''">
+                and recommend_flag = #{recommendFlag}
+            </if>
+        </where>
+        <choose>
+            <when test="orderBy == 'download'">order by download_count desc, resource_id desc</when>
+            <when test="orderBy == 'favorite'">order by favorite_count desc, resource_id desc</when>
+            <when test="orderBy == 'like'">order by like_count desc, resource_id desc</when>
+            <when test="orderBy == 'latest'">order by create_time desc, resource_id desc</when>
+            <otherwise>order by resource_id desc</otherwise>
+        </choose>
+    </select>
+
+    <select id="selectResourceById" parameterType="Long" resultMap="EduResourceResult">
+        <include refid="selectResourceVo"/>
+        where resource_id = #{resourceId}
+          and del_flag = '0'
+    </select>
+
+    <insert id="insertResource" parameterType="EduResource" useGeneratedKeys="true" keyProperty="resourceId">
+        insert into edu_resource(
+            resource_title, resource_type, category_name, course_name, tag_names,
+            file_url, cover_url, resource_version, file_size_mb, uploader_id, uploader_name,
+            audit_status, publish_status, recommend_flag, download_count, favorite_count, like_count,
+            resource_desc, remark, create_by, create_time
+        ) values (
+            #{resourceTitle}, #{resourceType}, #{categoryName}, #{courseName}, #{tagNames},
+            #{fileUrl}, #{coverUrl}, #{resourceVersion}, #{fileSizeMb}, #{uploaderId}, #{uploaderName},
+            #{auditStatus}, #{publishStatus}, #{recommendFlag}, #{downloadCount}, #{favoriteCount}, #{likeCount},
+            #{resourceDesc}, #{remark}, #{createBy}, sysdate()
+        )
+    </insert>
+
+    <update id="updateResource" parameterType="EduResource">
+        update edu_resource
+        set resource_title = #{resourceTitle},
+            resource_type = #{resourceType},
+            category_name = #{categoryName},
+            course_name = #{courseName},
+            tag_names = #{tagNames},
+            file_url = #{fileUrl},
+            cover_url = #{coverUrl},
+            resource_version = #{resourceVersion},
+            file_size_mb = #{fileSizeMb},
+            uploader_id = #{uploaderId},
+            uploader_name = #{uploaderName},
+            recommend_flag = #{recommendFlag},
+            resource_desc = #{resourceDesc},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        where resource_id = #{resourceId}
+    </update>
+
+    <update id="deleteResourceByIds">
+        update edu_resource
+        set del_flag = '2'
+        where resource_id in
+        <foreach collection="array" item="resourceId" open="(" separator="," close=")">
+            #{resourceId}
+        </foreach>
+    </update>
+
+    <update id="updateResourceStatus">
+        update edu_resource
+        set audit_status = #{auditStatus},
+            publish_status = #{publishStatus},
+            update_time = sysdate()
+        where resource_id = #{resourceId}
+    </update>
+
+    <update id="updateRecommendFlag">
+        update edu_resource
+        set recommend_flag = #{recommendFlag},
+            update_time = sysdate()
+        where resource_id = #{resourceId}
+    </update>
+
+    <update id="incrementDownloadCount" parameterType="Long">
+        update edu_resource
+        set download_count = ifnull(download_count, 0) + 1,
+            update_time = sysdate()
+        where resource_id = #{resourceId}
+    </update>
+
+    <update id="changeFavoriteCount">
+        update edu_resource
+        set favorite_count = greatest(ifnull(favorite_count, 0) + #{delta}, 0),
+            update_time = sysdate()
+        where resource_id = #{resourceId}
+    </update>
+
+    <update id="changeLikeCount">
+        update edu_resource
+        set like_count = greatest(ifnull(like_count, 0) + #{delta}, 0),
+            update_time = sysdate()
+        where resource_id = #{resourceId}
+    </update>
+
+</mapper>

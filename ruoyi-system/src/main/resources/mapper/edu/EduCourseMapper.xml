@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduCourseMapper">
+
+    <resultMap type="EduCourse" id="EduCourseResult">
+        <result property="courseId" column="course_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="courseCode" column="course_code"/>
+        <result property="teacherUserId" column="teacher_user_id"/>
+        <result property="teacherName" column="teacher_name"/>
+        <result property="courseIntro" column="course_intro"/>
+        <result property="status" column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectCourseVo">
+        select course_id, course_name, course_code, teacher_user_id, teacher_name, course_intro,
+               status, del_flag, remark, create_by, create_time, update_by, update_time
+        from edu_course
+    </sql>
+
+    <select id="selectCourseList" parameterType="EduCourse" resultMap="EduCourseResult">
+        <include refid="selectCourseVo"/>
+        <where>
+            del_flag = '0'
+            <if test="courseName != null and courseName != ''">
+                and course_name like concat('%', #{courseName}, '%')
+            </if>
+            <if test="courseCode != null and courseCode != ''">
+                and course_code like concat('%', #{courseCode}, '%')
+            </if>
+            <if test="teacherUserId != null">
+                and teacher_user_id = #{teacherUserId}
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                and teacher_name like concat('%', #{teacherName}, '%')
+            </if>
+            <if test="courseNameScope != null and courseNameScope.size() > 0">
+                and course_name in
+                <foreach collection="courseNameScope" item="courseNameItem" open="(" separator="," close=")">
+                    #{courseNameItem}
+                </foreach>
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+        </where>
+        order by course_id desc
+    </select>
+
+    <select id="selectEnabledCourseList" resultMap="EduCourseResult">
+        <include refid="selectCourseVo"/>
+        where del_flag = '0'
+          and status = '0'
+        order by course_id desc
+    </select>
+
+    <select id="selectCourseById" parameterType="Long" resultMap="EduCourseResult">
+        <include refid="selectCourseVo"/>
+        where course_id = #{courseId}
+          and del_flag = '0'
+    </select>
+
+    <select id="checkCourseNameUnique" parameterType="String" resultMap="EduCourseResult">
+        <include refid="selectCourseVo"/>
+        where course_name = #{courseName}
+          and del_flag = '0'
+        limit 1
+    </select>
+
+    <insert id="insertCourse" parameterType="EduCourse" useGeneratedKeys="true" keyProperty="courseId">
+        insert into edu_course(course_name, course_code, teacher_user_id, teacher_name, course_intro, status, remark, create_by, create_time)
+        values(#{courseName}, #{courseCode}, #{teacherUserId}, #{teacherName}, #{courseIntro}, #{status}, #{remark}, #{createBy}, sysdate())
+    </insert>
+
+    <update id="updateCourse" parameterType="EduCourse">
+        update edu_course
+        set course_name = #{courseName},
+            course_code = #{courseCode},
+            teacher_user_id = #{teacherUserId},
+            teacher_name = #{teacherName},
+            course_intro = #{courseIntro},
+            status = #{status},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        where course_id = #{courseId}
+    </update>
+
+    <update id="deleteCourseByIds">
+        update edu_course
+        set del_flag = '2'
+        where course_id in
+        <foreach collection="array" item="courseId" open="(" separator="," close=")">
+            #{courseId}
+        </foreach>
+    </update>
+
+</mapper>

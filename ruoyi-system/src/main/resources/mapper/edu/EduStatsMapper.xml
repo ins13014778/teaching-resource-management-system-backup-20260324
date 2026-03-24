@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduStatsMapper">
+    <select id="selectOverview" resultType="java.util.LinkedHashMap">
+        select
+            (select count(1) from edu_resource where del_flag = '0') as resourceCount,
+            (select count(1) from edu_course where del_flag = '0') as courseCount,
+            (select count(1) from edu_category where del_flag = '0') as categoryCount,
+            (select count(1) from edu_tag where del_flag = '0') as tagCount,
+            (select count(1) from edu_resource where audit_status = 'pending' and del_flag = '0') as pendingAuditCount,
+            (select count(1) from edu_comment where del_flag = '0') as commentCount,
+            (select count(1) from edu_report where status = 'pending' and del_flag = '0') as pendingReportCount,
+            (select count(1) from edu_favorite) as favoriteCount,
+            (select count(1) from edu_download_log) as downloadCount,
+            (select count(1) from sys_feedback where del_flag = '0') as feedbackCount,
+            (
+                select count(1) from (
+                    select user_id from edu_download_log where create_time >= date_sub(now(), interval 30 day)
+                    union
+                    select user_id from edu_favorite where create_time >= date_sub(now(), interval 30 day)
+                    union
+                    select user_id from edu_comment where create_time >= date_sub(now(), interval 30 day)
+                    union
+                    select uploader_id as user_id from edu_resource where create_time >= date_sub(now(), interval 30 day)
+                ) t
+            ) as activeUserCount,
+            (
+                select ifnull(round(
+                    (sum(case when audit_status = 'approved' then 1 else 0 end) / nullif(count(1), 0)) * 100, 2
+                ), 0)
+                from edu_resource_audit
+                where del_flag = '0'
+            ) as auditPassRate,
+            (
+                select ifnull(round(
+                    (sum(case when status &lt;&gt; 'pending' then 1 else 0 end) / nullif(count(1), 0)) * 100, 2
+                ), 0)
+                from edu_report
+                where del_flag = '0'
+            ) as reportHandleRate
+    </select>
+
+    <select id="selectTopResources" resultType="java.util.LinkedHashMap">
+        select resource_title as name, ifnull(download_count, 0) as value
+        from edu_resource
+        where del_flag = '0'
+        order by ifnull(download_count, 0) desc, resource_id desc
+        limit 10
+    </select>
+
+    <select id="selectTopTeachers" resultType="java.util.LinkedHashMap">
+        select uploader_name as name, count(1) as value
+        from edu_resource
+        where del_flag = '0'
+        group by uploader_name
+        order by count(1) desc, uploader_name asc
+        limit 10
+    </select>
+
+    <select id="selectActiveUsers" resultType="java.util.LinkedHashMap">
+        select x.user_name as name, sum(x.score) as value
+        from (
+            select user_name, count(1) * 3 as score
+            from edu_download_log
+            where create_time >= date_sub(now(), interval 30 day)
+            group by user_name
+            union all
+            select user_name, count(1) * 2 as score
+            from edu_comment
+            where del_flag = '0' and create_time >= date_sub(now(), interval 30 day)
+            group by user_name
+            union all
+            select user_name, count(1) as score
+            from edu_favorite
+            where create_time >= date_sub(now(), interval 30 day)
+            group by user_name
+        ) x
+        where ifnull(x.user_name, '') &lt;&gt; ''
+        group by x.user_name
+        order by value desc, x.user_name asc
+        limit 10
+    </select>
+
+    <select id="selectCategoryDistribution" resultType="java.util.LinkedHashMap">
+        select category_name as name, count(1) as value
+        from edu_resource
+        where del_flag = '0'
+        group by category_name
+        order by count(1) desc, category_name asc
+    </select>
+
+    <select id="selectRecentUploadTrend" resultType="java.util.LinkedHashMap">
+        select date_format(create_time, '%Y-%m-%d') as day, count(1) as value
+        from edu_resource
+        where del_flag = '0' and create_time >= date_sub(curdate(), interval 6 day)
+        group by date_format(create_time, '%Y-%m-%d')
+        order by day asc
+    </select>
+
+    <select id="selectRecentDownloadTrend" resultType="java.util.LinkedHashMap">
+        select date_format(create_time, '%Y-%m-%d') as day, count(1) as value
+        from edu_download_log
+        where create_time >= date_sub(curdate(), interval 6 day)
+        group by date_format(create_time, '%Y-%m-%d')
+        order by day asc
+    </select>
+</mapper>
