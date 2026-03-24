@@ -85,6 +85,149 @@ bin\start-all.bat
 bin\stop-all.bat
 ```
 
+## 六、环境安装、校验与部署命令（Windows）
+
+> 以下命令在 **PowerShell / CMD** 下均可执行。  
+> 建议先进入项目根目录：
+
+```bat
+cd /d D:\RuoYi-Vue-master
+```
+
+### 1）环境要求
+
+- JDK 21
+- Maven 3.9+
+- Node.js 22+
+- npm 11+
+- MySQL 8.0
+- Redis 8.x
+- Git
+
+### 2）环境校验命令
+
+```bat
+java -version
+mvn -v
+node -v
+npm -v
+mysql --version
+git --version
+```
+
+如果 Redis 未加入环境变量，可执行：
+
+```bat
+"C:\Windows\Redis-8.6.1-Windows-x64-cygwin-with-Service\redis-server.exe" --version
+```
+
+### 3）前端依赖安装命令
+
+```bat
+cd /d D:\RuoYi-Vue-master\ruoyi-ui
+npm install
+```
+
+### 4）后端构建命令
+
+```bat
+cd /d D:\RuoYi-Vue-master
+mvn clean package -DskipTests
+```
+
+如果本机 `mvn` 没有加入环境变量，可执行：
+
+```bat
+"C:\Program Files\JetBrains\IntelliJ IDEA 2025.3.1.1\plugins\maven\lib\maven3\bin\mvn.cmd" clean package -DskipTests
+```
+
+### 5）数据库恢复命令
+
+```bat
+cd /d D:\RuoYi-Vue-master
+bin\restore-db.bat
+```
+
+### 6）Redis 启动命令
+
+```bat
+cd /d D:\RuoYi-Vue-master
+bin\start-redis.bat
+```
+
+或者直接运行本机 Redis：
+
+```bat
+"C:\Windows\Redis-8.6.1-Windows-x64-cygwin-with-Service\redis-server.exe" "C:\Windows\Redis-8.6.1-Windows-x64-cygwin-with-Service\redis.conf"
+```
+
+### 7）后端启动命令
+
+如果已有 jar：
+
+```bat
+cd /d D:\RuoYi-Vue-master\ruoyi-admin\target
+java -jar ruoyi-admin.jar
+```
+
+如果要先重新打包再启动：
+
+```bat
+cd /d D:\RuoYi-Vue-master
+mvn -T 1C -DskipTests package
+cd /d D:\RuoYi-Vue-master\ruoyi-admin\target
+java -jar ruoyi-admin.jar
+```
+
+### 8）前端启动命令
+
+```bat
+cd /d D:\RuoYi-Vue-master\ruoyi-ui
+npm run dev
+```
+
+### 9）一键启动命令
+
+```bat
+cd /d D:\RuoYi-Vue-master
+bin\start-all.bat
+```
+
+### 10）一键关闭命令
+
+```bat
+cd /d D:\RuoYi-Vue-master
+bin\stop-all.bat
+```
+
+### 11）首次部署推荐顺序
+
+```bat
+cd /d D:\RuoYi-Vue-master
+bin\restore-db.bat
+bin\start-all.bat
+```
+
+或者手动部署顺序：
+
+```bat
+cd /d D:\RuoYi-Vue-master\ruoyi-ui
+npm install
+
+cd /d D:\RuoYi-Vue-master
+mvn clean package -DskipTests
+
+cd /d D:\RuoYi-Vue-master
+bin\restore-db.bat
+bin\start-redis.bat
+
+cd /d D:\RuoYi-Vue-master\ruoyi-admin\target
+java -jar ruoyi-admin.jar
+
+cd /d D:\RuoYi-Vue-master\ruoyi-ui
+npm run dev
+```
+
 ## 六、默认数据库配置
 
 当前项目默认使用：
@@ -99,7 +242,12 @@ bin\stop-all.bat
 
 - `/ruoyi-admin/src/main/resources/application-druid.yml`
 
-## 七、说明
+## 七、默认访问地址
+
+- 前端：<http://127.0.0.1/>
+- 后端：<http://127.0.0.1:8080/>
+
+## 八、说明
 
 这个仓库当前主要用于：
 
