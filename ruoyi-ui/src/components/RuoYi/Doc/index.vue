@@ -6,10 +6,10 @@
 
 <script>
 export default {
-  name: 'RuoYiDoc',
+  name: 'ProjectDoc',
   data() {
     return {
-      url: 'http://doc.ruoyi.vip/ruoyi-vue'
+      url: 'https://github.com/ins13014778/teaching-resource-management-system-backup-20260324'
     }
   },
   methods: {

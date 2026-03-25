@@ -8,9 +8,9 @@
     <artifactId>ruoyi</artifactId>
     <version>3.9.1</version>
 
-    <name>ruoyi</name>
-    <url>http://www.ruoyi.vip</url>
-    <description>若依管理系统</description>
+    <name>teaching-resource-management-system</name>
+    <url>https://github.com/ins13014778/teaching-resource-management-system-backup-20260324</url>
+    <description>教学资源管理系统</description>
     
     <properties>
         <ruoyi.version>3.9.1</ruoyi.version>

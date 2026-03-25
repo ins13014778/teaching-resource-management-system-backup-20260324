@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal EnableDelayedExpansion
 
 call "%~dp0env.cmd"
 
@@ -19,19 +19,31 @@ if not defined REDIS_SERVER_EXE (
   exit /b 1
 )
 
+for %%I in ("%REDIS_SERVER_EXE%") do (
+  set "REDIS_WORKDIR=%%~dpI"
+)
+
+set "REDIS_CONF_NAME="
+if defined REDIS_CONF if exist "%REDIS_CONF%" (
+  for %%I in ("%REDIS_CONF%") do (
+    set "REDIS_WORKDIR=%%~dpI"
+    set "REDIS_CONF_NAME=%%~nxI"
+  )
+)
+
 if "%DRY_RUN%"=="1" (
-  if defined REDIS_CONF (
-    echo [DRY RUN] start "TRMS-Redis" cmd /k ""%REDIS_SERVER_EXE%" "%REDIS_CONF%""
+  if defined REDIS_CONF_NAME (
+    echo [DRY RUN] start "TRMS-Redis" cmd /k "cd /d ""%REDIS_WORKDIR%"" ^&^& ""%REDIS_SERVER_EXE%"" ""%REDIS_CONF_NAME%"""
   ) else (
-    echo [DRY RUN] start "TRMS-Redis" cmd /k ""%REDIS_SERVER_EXE%""
+    echo [DRY RUN] start "TRMS-Redis" cmd /k "cd /d ""%REDIS_WORKDIR%"" ^&^& ""%REDIS_SERVER_EXE%"""
   )
   exit /b 0
 )
 
-if defined REDIS_CONF (
-  start "TRMS-Redis" cmd /k ""%REDIS_SERVER_EXE%" "%REDIS_CONF%""
+if defined REDIS_CONF_NAME (
+  start "TRMS-Redis" cmd /k "cd /d ""%REDIS_WORKDIR%"" && ""%REDIS_SERVER_EXE%"" ""%REDIS_CONF_NAME%"""
 ) else (
-  start "TRMS-Redis" cmd /k ""%REDIS_SERVER_EXE%""
+  start "TRMS-Redis" cmd /k "cd /d ""%REDIS_WORKDIR%"" && ""%REDIS_SERVER_EXE%"""
 )
 
 echo [SUCCESS] Redis start command executed.

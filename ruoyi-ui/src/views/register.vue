@@ -52,8 +52,8 @@
           style="width:100%;"
           @click.native.prevent="handleRegister"
         >
-          <span v-if="!loading">注 册</span>
-          <span v-else>注 册 中...</span>
+          <span v-if="!loading">立即注册</span>
+          <span v-else>注册中...</span>
         </el-button>
         <div class="register-links">
           <router-link class="link-type" :to="loginRoute">返回{{ portalLabel }}登录</router-link>
@@ -99,7 +99,7 @@ export default {
         password: [
           { required: true, trigger: 'blur', message: '请输入您的密码' },
           { min: 5, max: 20, message: '用户密码长度必须介于 5 和 20 之间', trigger: 'blur' },
-          { pattern: /^[^<>"'|\\\\]+$/, message: '不能包含非法字符：< > " \' \\ |', trigger: 'blur' }
+          { pattern: /^[^<>"'|\\]+$/, message: '不能包含非法字符：< > " \' \\ |', trigger: 'blur' }
         ],
         confirmPassword: [
           { required: true, trigger: 'blur', message: '请再次输入您的密码' },

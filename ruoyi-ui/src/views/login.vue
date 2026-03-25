@@ -115,7 +115,7 @@ const PORTAL_MAP = {
   admin: {
     badge: '管理门户',
     heading: '教学资源统一管理',
-    description: '面向平台主管、教务与审核人员，集中处理资源审核、课程配置、空间权限和教学运营数据。',
+    description: '面向平台管理员、教务与审核人员，集中处理资源审核、课程配置、空间权限和教学运营数据。',
     features: ['教学菜单与权限配置', '课程资源审核发布', '空间策略统一管控'],
     formTitle: '管理员登录',
     formDesc: '使用管理员账号进入教学资源管理后台。',
@@ -130,7 +130,7 @@ const PORTAL_MAP = {
     formTitle: '教师登录',
     formDesc: '使用教师账号进入课程资源中心。',
     buttonText: '进入教师工作台',
-    tip: '教师账号由平台管理员统一分配。'
+    tip: '支持教师注册，也支持管理员统一分配账号。'
   },
   student: {
     badge: '学生门户',
@@ -190,7 +190,11 @@ export default {
       return 'linear-gradient(135deg, #10b981, #34d399)'
     },
     showRegisterEntry() {
-      return this.portalType === 'teacher' ? this.registerTeacherEnabled : this.portalType === 'student' ? this.registerStudentEnabled : false
+      return this.portalType === 'teacher'
+        ? this.registerTeacherEnabled
+        : this.portalType === 'student'
+          ? this.registerStudentEnabled
+          : false
     },
     registerRoute() {
       return this.portalType === 'teacher' ? '/teacher-register' : '/register'
@@ -205,7 +209,7 @@ export default {
       if (this.portalType === 'student') {
         return this.registerStudentEnabled ? '首次使用可在线注册学生账号。' : '学生注册暂未开放，请联系管理员。'
       }
-      return '教师和管理员账号由平台管理员统一分配。'
+      return '管理员账号由系统管理员统一分配，教师与学生账号可按开关配置开放注册。'
     }
   },
   watch: {
