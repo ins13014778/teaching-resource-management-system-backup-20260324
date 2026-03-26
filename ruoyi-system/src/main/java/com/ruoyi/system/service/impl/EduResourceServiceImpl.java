@@ -28,28 +28,20 @@ public class EduResourceServiceImpl implements IEduResourceService
 {
     @Autowired
     private EduResourceMapper resourceMapper;
-
     @Autowired
     private EduResourceAuditMapper auditMapper;
-
     @Autowired
     private EduCategoryMapper categoryMapper;
-
     @Autowired
     private EduTagMapper tagMapper;
-
     @Autowired
     private EduCourseMapper courseMapper;
-
     @Autowired
     private EduTeacherStudentGrantMapper grantMapper;
-
     @Autowired
     private IEduCategoryService categoryService;
-
     @Autowired
     private IEduDownloadLogService downloadLogService;
-
     @Autowired
     private IAiCapabilityService aiCapabilityService;
 
@@ -80,6 +72,7 @@ public class EduResourceServiceImpl implements IEduResourceService
     public int insertResource(EduResource resource)
     {
         fillResourceOwner(resource);
+        normalizeFileMetadata(resource);
         if (StringUtils.isEmpty(resource.getResourceVersion()))
         {
             resource.setResourceVersion("v1.0");
@@ -95,6 +88,10 @@ public class EduResourceServiceImpl implements IEduResourceService
         if (StringUtils.isEmpty(resource.getRecommendFlag()))
         {
             resource.setRecommendFlag("0");
+        }
+        if (resource.getDownloadCount() == null)
+        {
+            resource.setDownloadCount(0);
         }
         if (resource.getFavoriteCount() == null)
         {
@@ -115,6 +112,7 @@ public class EduResourceServiceImpl implements IEduResourceService
         EduResource db = resourceMapper.selectResourceById(resource.getResourceId());
         checkResourcePermission(db);
         fillResourceOwner(resource);
+        normalizeFileMetadata(resource);
         int rows = resourceMapper.updateResource(resource);
         aiCapabilityService.runAutoTasks(resource.getResourceId(), "update");
         return rows;
@@ -222,14 +220,29 @@ public class EduResourceServiceImpl implements IEduResourceService
         }
     }
 
+    private void normalizeFileMetadata(EduResource resource)
+    {
+        if (StringUtils.isNotEmpty(resource.getFileUrl()) && StringUtils.isEmpty(resource.getPreviewUrl()))
+        {
+            resource.setPreviewUrl(resource.getFileUrl());
+        }
+        if (StringUtils.isNotEmpty(resource.getFileUrl()) && StringUtils.isEmpty(resource.getOriginalFileName()))
+        {
+            resource.setOriginalFileName(StringUtils.substringAfterLast(resource.getFileUrl(), "/"));
+        }
+        if (StringUtils.isNotEmpty(resource.getStoragePath()) && StringUtils.isEmpty(resource.getStorageType()))
+        {
+            resource.setStorageType("local");
+        }
+    }
+
     private void checkResourcePermission(EduResource resource)
     {
         if (resource == null)
         {
             return;
         }
-        if (SecurityUtils.hasRole("teacher") && !SecurityUtils.isAdmin()
-            && !resource.getUploaderId().equals(SecurityUtils.getUserId()))
+        if (SecurityUtils.hasRole("teacher") && !SecurityUtils.isAdmin() && !resource.getUploaderId().equals(SecurityUtils.getUserId()))
         {
             throw new ServiceException("只能操作自己上传的资源");
         }
@@ -242,7 +255,7 @@ public class EduResourceServiceImpl implements IEduResourceService
             List<String> courseNames = grantMapper.selectActiveCourseNamesByStudentId(SecurityUtils.getUserId());
             if (!courseNames.isEmpty() && StringUtils.isNotEmpty(resource.getCourseName()) && !courseNames.contains(resource.getCourseName()))
             {
-                throw new ServiceException("您暂无该课程资源的访问权限");
+                throw new ServiceException("您暂时没有该课程资源的访问权限");
             }
         }
     }

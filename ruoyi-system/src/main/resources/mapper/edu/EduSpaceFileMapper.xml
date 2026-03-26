@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EduSpaceFileMapper">
+    <resultMap type="EduSpaceFile" id="EduSpaceFileResult">
+        <result property="fileId" column="file_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="ownerUserId" column="owner_user_id"/>
+        <result property="ownerName" column="owner_name"/>
+        <result property="fileName" column="file_name"/>
+        <result property="originalFileName" column="original_file_name"/>
+        <result property="targetType" column="target_type"/>
+        <result property="fileExt" column="file_ext"/>
+        <result property="fileSizeMb" column="file_size_mb"/>
+        <result property="storageType" column="storage_type"/>
+        <result property="storagePath" column="storage_path"/>
+        <result property="fileUrl" column="file_url"/>
+        <result property="previewUrl" column="preview_url"/>
+        <result property="status" column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectSpaceFileVo">
+        select file_id, parent_id, owner_user_id, owner_name, file_name, original_file_name,
+               target_type, file_ext, file_size_mb, storage_type, storage_path, file_url,
+               preview_url, status, del_flag, create_by, create_time, update_by, update_time, remark
+        from edu_space_file
+    </sql>
+
+    <select id="selectSpaceFileList" parameterType="EduSpaceFile" resultMap="EduSpaceFileResult">
+        <include refid="selectSpaceFileVo"/>
+        <where>
+            del_flag = '0'
+            <if test="ownerUserId != null">and owner_user_id = #{ownerUserId}</if>
+            <if test="parentId != null">and parent_id = #{parentId}</if>
+            <if test="targetType != null and targetType != ''">and target_type = #{targetType}</if>
+            <if test="fileName != null and fileName != ''">and file_name like concat('%', #{fileName}, '%')</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+        </where>
+        order by target_type desc, file_id desc
+    </select>
+
+    <select id="selectSpaceFileById" parameterType="Long" resultMap="EduSpaceFileResult">
+        <include refid="selectSpaceFileVo"/>
+        where file_id = #{fileId}
+          and del_flag = '0'
+    </select>
+
+    <insert id="insertSpaceFile" parameterType="EduSpaceFile" useGeneratedKeys="true" keyProperty="fileId">
+        insert into edu_space_file(
+            parent_id, owner_user_id, owner_name, file_name, original_file_name, target_type,
+            file_ext, file_size_mb, storage_type, storage_path, file_url, preview_url,
+            status, create_by, create_time, remark
+        ) values (
+            #{parentId}, #{ownerUserId}, #{ownerName}, #{fileName}, #{originalFileName}, #{targetType},
+            #{fileExt}, #{fileSizeMb}, #{storageType}, #{storagePath}, #{fileUrl}, #{previewUrl},
+            #{status}, #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateSpaceFile" parameterType="EduSpaceFile">
+        update edu_space_file
+        <set>
+            parent_id = #{parentId},
+            file_name = #{fileName},
+            original_file_name = #{originalFileName},
+            file_ext = #{fileExt},
+            preview_url = #{previewUrl},
+            status = #{status},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        </set>
+        where file_id = #{fileId}
+    </update>
+
+    <update id="deleteSpaceFileByIds">
+        update edu_space_file
+        set del_flag = '2', update_time = sysdate()
+        where file_id in
+        <foreach collection="array" item="fileId" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+    </update>
+
+    <select id="sumFileSizeByIds" resultType="java.math.BigDecimal">
+        select ifnull(sum(case when target_type = 'file' then ifnull(file_size_mb, 0) else 0 end), 0)
+        from edu_space_file
+        where del_flag = '0'
+          and file_id in
+        <foreach collection="fileIds" item="fileId" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+    </select>
+</mapper>

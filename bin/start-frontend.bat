@@ -43,7 +43,7 @@ start "TRMS-Frontend" cmd /k "%FRONTEND_CMD%"
 echo [INFO] Waiting for frontend to listen on port %FRONTEND_PORT%...
 
 set "FRONTEND_STARTED="
-for /l %%I in (1,1,60) do (
+for /l %%I in (1,1,180) do (
   for /f "usebackq delims=" %%J in (`powershell -NoProfile -Command "$listener = Get-NetTCPConnection -LocalPort %FRONTEND_PORT% -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1; if($listener){ 'LISTEN:' + $listener.OwningProcess } else { 'WAIT' }"`) do set "FRONTEND_LISTEN_STATUS=%%J"
   if /I "!FRONTEND_LISTEN_STATUS:~0,7!"=="LISTEN:" (
     set "FRONTEND_STARTED=1"
@@ -53,7 +53,7 @@ for /l %%I in (1,1,60) do (
   timeout /t 1 /nobreak >nul
 )
 
-echo [ERROR] Frontend failed to listen on port %FRONTEND_PORT% within 60 seconds. Please check the new TRMS-Frontend window output.
+echo [ERROR] Frontend failed to listen on port %FRONTEND_PORT% within 180 seconds. Please check the new TRMS-Frontend window output.
 exit /b 1
 
 :frontend_ready

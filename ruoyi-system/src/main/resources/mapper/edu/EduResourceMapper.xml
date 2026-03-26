@@ -12,9 +12,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="courseName" column="course_name"/>
         <result property="tagNames" column="tag_names"/>
         <result property="fileUrl" column="file_url"/>
+        <result property="originalFileName" column="original_file_name"/>
         <result property="coverUrl" column="cover_url"/>
         <result property="resourceVersion" column="resource_version"/>
         <result property="fileSizeMb" column="file_size_mb"/>
+        <result property="storageType" column="storage_type"/>
+        <result property="storagePath" column="storage_path"/>
+        <result property="previewUrl" column="preview_url"/>
         <result property="uploaderId" column="uploader_id"/>
         <result property="uploaderName" column="uploader_name"/>
         <result property="auditStatus" column="audit_status"/>
@@ -34,7 +38,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectResourceVo">
         select resource_id, resource_title, resource_type, category_name, course_name, tag_names,
-               file_url, cover_url, resource_version, file_size_mb, uploader_id, uploader_name,
+               file_url, original_file_name, cover_url, resource_version, file_size_mb,
+               storage_type, storage_path, preview_url, uploader_id, uploader_name,
                audit_status, publish_status, recommend_flag, download_count, favorite_count, like_count,
                resource_desc, del_flag, remark, create_by, create_time, update_by, update_time
         from edu_resource
@@ -64,7 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="courseName != null and courseName != ''">
                 and course_name like concat('%', #{courseName}, '%')
             </if>
-            <if test="courseNameScope != null and courseNameScope.size() > 0">
+            <if test="courseNameScope != null and courseNameScope.size() &gt; 0">
                 and course_name in
                 <foreach collection="courseNameScope" item="courseNameItem" open="(" separator="," close=")">
                     #{courseNameItem}
@@ -107,12 +112,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertResource" parameterType="EduResource" useGeneratedKeys="true" keyProperty="resourceId">
         insert into edu_resource(
             resource_title, resource_type, category_name, course_name, tag_names,
-            file_url, cover_url, resource_version, file_size_mb, uploader_id, uploader_name,
+            file_url, original_file_name, cover_url, resource_version, file_size_mb,
+            storage_type, storage_path, preview_url, uploader_id, uploader_name,
             audit_status, publish_status, recommend_flag, download_count, favorite_count, like_count,
             resource_desc, remark, create_by, create_time
         ) values (
             #{resourceTitle}, #{resourceType}, #{categoryName}, #{courseName}, #{tagNames},
-            #{fileUrl}, #{coverUrl}, #{resourceVersion}, #{fileSizeMb}, #{uploaderId}, #{uploaderName},
+            #{fileUrl}, #{originalFileName}, #{coverUrl}, #{resourceVersion}, #{fileSizeMb},
+            #{storageType}, #{storagePath}, #{previewUrl}, #{uploaderId}, #{uploaderName},
             #{auditStatus}, #{publishStatus}, #{recommendFlag}, #{downloadCount}, #{favoriteCount}, #{likeCount},
             #{resourceDesc}, #{remark}, #{createBy}, sysdate()
         )
@@ -126,9 +133,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             course_name = #{courseName},
             tag_names = #{tagNames},
             file_url = #{fileUrl},
+            original_file_name = #{originalFileName},
             cover_url = #{coverUrl},
             resource_version = #{resourceVersion},
             file_size_mb = #{fileSizeMb},
+            storage_type = #{storageType},
+            storage_path = #{storagePath},
+            preview_url = #{previewUrl},
             uploader_id = #{uploaderId},
             uploader_name = #{uploaderName},
             recommend_flag = #{recommendFlag},

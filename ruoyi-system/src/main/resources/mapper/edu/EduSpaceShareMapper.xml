@@ -3,12 +3,12 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.EduSpaceShareMapper">
-
     <resultMap type="EduSpaceShare" id="EduSpaceShareResult">
         <result property="shareId" column="share_id"/>
         <result property="ownerUserId" column="owner_user_id"/>
         <result property="ownerName" column="owner_name"/>
         <result property="shareName" column="share_name"/>
+        <result property="fileId" column="file_id"/>
         <result property="targetType" column="target_type"/>
         <result property="targetName" column="target_name"/>
         <result property="targetPath" column="target_path"/>
@@ -19,6 +19,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="downloadCount" column="download_count"/>
         <result property="viewCount" column="view_count"/>
         <result property="status" column="status"/>
+        <result property="delFlag" column="del_flag"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -27,30 +28,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectShareVo">
-        select share_id, owner_user_id, owner_name, share_name, target_type, target_name,
+        select share_id, owner_user_id, owner_name, share_name, file_id, target_type, target_name,
                target_path, share_mode, share_password, expire_time, download_limit,
-               download_count, view_count, status, create_by, create_time, update_by, update_time, remark
+               download_count, view_count, status, del_flag, create_by, create_time, update_by, update_time, remark
         from edu_space_share
     </sql>
 
     <select id="selectShareList" parameterType="EduSpaceShare" resultMap="EduSpaceShareResult">
         <include refid="selectShareVo"/>
         <where>
-            <if test="ownerName != null and ownerName != ''">
-                and owner_name like concat('%', #{ownerName}, '%')
-            </if>
-            <if test="shareName != null and shareName != ''">
-                and share_name like concat('%', #{shareName}, '%')
-            </if>
-            <if test="targetType != null and targetType != ''">
-                and target_type = #{targetType}
-            </if>
-            <if test="shareMode != null and shareMode != ''">
-                and share_mode = #{shareMode}
-            </if>
-            <if test="status != null and status != ''">
-                and status = #{status}
-            </if>
+            del_flag = '0'
+            <if test="ownerUserId != null">and owner_user_id = #{ownerUserId}</if>
+            <if test="ownerName != null and ownerName != ''">and owner_name like concat('%', #{ownerName}, '%')</if>
+            <if test="shareName != null and shareName != ''">and share_name like concat('%', #{shareName}, '%')</if>
+            <if test="targetType != null and targetType != ''">and target_type = #{targetType}</if>
+            <if test="shareMode != null and shareMode != ''">and share_mode = #{shareMode}</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
         </where>
         order by share_id desc
     </select>
@@ -58,26 +51,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectShareById" parameterType="Long" resultMap="EduSpaceShareResult">
         <include refid="selectShareVo"/>
         where share_id = #{shareId}
+          and del_flag = '0'
     </select>
 
     <insert id="insertShare" parameterType="EduSpaceShare" useGeneratedKeys="true" keyProperty="shareId">
         insert into edu_space_share(
-            owner_user_id, owner_name, share_name, target_type, target_name, target_path,
+            owner_user_id, owner_name, share_name, file_id, target_type, target_name, target_path,
             share_mode, share_password, expire_time, download_limit, download_count,
-            view_count, status, create_by, create_time, remark
+            view_count, status, del_flag, create_by, create_time, remark
         ) values (
-            #{ownerUserId}, #{ownerName}, #{shareName}, #{targetType}, #{targetName}, #{targetPath},
+            #{ownerUserId}, #{ownerName}, #{shareName}, #{fileId}, #{targetType}, #{targetName}, #{targetPath},
             #{shareMode}, #{sharePassword}, #{expireTime}, #{downloadLimit}, #{downloadCount},
-            #{viewCount}, #{status}, #{createBy}, sysdate(), #{remark}
+            #{viewCount}, #{status}, '0', #{createBy}, sysdate(), #{remark}
         )
     </insert>
 
     <update id="updateShare" parameterType="EduSpaceShare">
         update edu_space_share
         <set>
-            owner_user_id = #{ownerUserId},
-            owner_name = #{ownerName},
             share_name = #{shareName},
+            file_id = #{fileId},
             target_type = #{targetType},
             target_name = #{targetName},
             target_path = #{targetPath},
@@ -95,12 +88,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where share_id = #{shareId}
     </update>
 
-    <delete id="deleteShareByIds">
-        delete from edu_space_share
+    <update id="deleteShareByIds">
+        update edu_space_share
+        set del_flag = '2', update_time = sysdate()
         where share_id in
         <foreach collection="array" item="shareId" open="(" separator="," close=")">
             #{shareId}
         </foreach>
-    </delete>
-
+    </update>
 </mapper>

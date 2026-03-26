@@ -31,7 +31,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                     (sum(case when audit_status = 'approved' then 1 else 0 end) / nullif(count(1), 0)) * 100, 2
                 ), 0)
                 from edu_resource_audit
-                where del_flag = '0'
             ) as auditPassRate,
             (
                 select ifnull(round(

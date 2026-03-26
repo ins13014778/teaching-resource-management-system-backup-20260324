@@ -3,7 +3,6 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.EduUserQuotaMapper">
-
     <resultMap type="EduUserQuota" id="EduUserQuotaResult">
         <result property="quotaId" column="quota_id"/>
         <result property="userId" column="user_id"/>
@@ -29,10 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectQuotaVo">
         select q.quota_id, q.user_id, u.user_name, u.nick_name, d.dept_name,
-               (select group_concat(r.role_name separator ',')
-                  from sys_user_role ur
-                  left join sys_role r on r.role_id = ur.role_id
-                 where ur.user_id = q.user_id) as role_names,
+               (select group_concat(r.role_name separator ',') from sys_user_role ur left join sys_role r on r.role_id = ur.role_id where ur.user_id = q.user_id) as role_names,
                q.storage_gb, q.upload_mb, q.used_storage_mb, q.status,
                q.allow_share, q.allow_password_share, q.max_share_days, q.ban_reason,
                u.status as user_status, q.create_by, q.create_time, q.update_by, q.update_time, q.remark
@@ -44,18 +40,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectQuotaList" parameterType="EduUserQuota" resultMap="EduUserQuotaResult">
         <include refid="selectQuotaVo"/>
         <where>
-            <if test="userName != null and userName != ''">
-                and u.user_name like concat('%', #{userName}, '%')
-            </if>
-            <if test="nickName != null and nickName != ''">
-                and u.nick_name like concat('%', #{nickName}, '%')
-            </if>
-            <if test="status != null and status != ''">
-                and q.status = #{status}
-            </if>
-            <if test="userStatus != null and userStatus != ''">
-                and u.status = #{userStatus}
-            </if>
+            <if test="userName != null and userName != ''">and u.user_name like concat('%', #{userName}, '%')</if>
+            <if test="nickName != null and nickName != ''">and u.nick_name like concat('%', #{nickName}, '%')</if>
+            <if test="status != null and status != ''">and q.status = #{status}</if>
+            <if test="userStatus != null and userStatus != ''">and u.status = #{userStatus}</if>
         </where>
         order by q.quota_id asc
     </select>
@@ -63,6 +51,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectQuotaById" parameterType="Long" resultMap="EduUserQuotaResult">
         <include refid="selectQuotaVo"/>
         where q.quota_id = #{quotaId}
+    </select>
+
+    <select id="selectQuotaByUserId" parameterType="Long" resultMap="EduUserQuotaResult">
+        <include refid="selectQuotaVo"/>
+        where q.user_id = #{userId}
     </select>
 
     <insert id="insertQuota" parameterType="EduUserQuota" useGeneratedKeys="true" keyProperty="quotaId">
@@ -125,4 +118,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where user_id = #{userId}
     </update>
 
+    <update id="updateUsedStorageByUserId">
+        update edu_user_quota
+        set used_storage_mb = greatest(ifnull(used_storage_mb, 0) + #{deltaMb}, 0),
+            update_time = sysdate()
+        where user_id = #{userId}
+    </update>
 </mapper>

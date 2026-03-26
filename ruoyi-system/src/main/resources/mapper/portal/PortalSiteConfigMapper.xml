@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.PortalSiteConfigMapper">
+
+    <resultMap id="PortalSiteConfigResult" type="PortalSiteConfig">
+        <result property="configId" column="config_id"/>
+        <result property="siteName" column="site_name"/>
+        <result property="siteEnName" column="site_en_name"/>
+        <result property="logoUrl" column="logo_url"/>
+        <result property="homeNavText" column="home_nav_text"/>
+        <result property="noticeNavText" column="notice_nav_text"/>
+        <result property="teacherNavText" column="teacher_nav_text"/>
+        <result property="studentNavText" column="student_nav_text"/>
+        <result property="loginButtonText" column="login_button_text"/>
+        <result property="heroBadge" column="hero_badge"/>
+        <result property="heroTitle" column="hero_title"/>
+        <result property="heroSubtitle" column="hero_subtitle"/>
+        <result property="heroPrimaryText" column="hero_primary_text"/>
+        <result property="heroPrimaryLink" column="hero_primary_link"/>
+        <result property="heroSecondaryText" column="hero_secondary_text"/>
+        <result property="heroSecondaryLink" column="hero_secondary_link"/>
+        <result property="noticePanelTitle" column="notice_panel_title"/>
+        <result property="noticePanelMoreText" column="notice_panel_more_text"/>
+        <result property="footerName" column="footer_name"/>
+        <result property="footerDesc" column="footer_desc"/>
+        <result property="footerCopyright" column="footer_copyright"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectPortalSiteConfigVo">
+        select config_id, site_name, site_en_name, logo_url, home_nav_text, notice_nav_text,
+               teacher_nav_text, student_nav_text, login_button_text, hero_badge, hero_title,
+               hero_subtitle, hero_primary_text, hero_primary_link, hero_secondary_text,
+               hero_secondary_link, notice_panel_title, notice_panel_more_text, footer_name,
+               footer_desc, footer_copyright, status, create_by, create_time, update_by,
+               update_time, remark
+        from portal_site_config
+    </sql>
+
+    <select id="selectCurrentConfig" resultMap="PortalSiteConfigResult">
+        <include refid="selectPortalSiteConfigVo"/>
+        order by config_id asc
+        limit 1
+    </select>
+
+    <select id="selectActiveConfig" resultMap="PortalSiteConfigResult">
+        <include refid="selectPortalSiteConfigVo"/>
+        where status = '0'
+        order by config_id asc
+        limit 1
+    </select>
+
+    <update id="updateConfig" parameterType="PortalSiteConfig">
+        update portal_site_config
+        <set>
+            site_name = #{siteName},
+            site_en_name = #{siteEnName},
+            logo_url = #{logoUrl},
+            home_nav_text = #{homeNavText},
+            notice_nav_text = #{noticeNavText},
+            teacher_nav_text = #{teacherNavText},
+            student_nav_text = #{studentNavText},
+            login_button_text = #{loginButtonText},
+            hero_badge = #{heroBadge},
+            hero_title = #{heroTitle},
+            hero_subtitle = #{heroSubtitle},
+            hero_primary_text = #{heroPrimaryText},
+            hero_primary_link = #{heroPrimaryLink},
+            hero_secondary_text = #{heroSecondaryText},
+            hero_secondary_link = #{heroSecondaryLink},
+            notice_panel_title = #{noticePanelTitle},
+            notice_panel_more_text = #{noticePanelMoreText},
+            footer_name = #{footerName},
+            footer_desc = #{footerDesc},
+            footer_copyright = #{footerCopyright},
+            status = #{status},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        </set>
+        where config_id = #{configId}
+    </update>
+
+</mapper>

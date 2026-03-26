@@ -1,4 +1,4 @@
-# 项目相关配置
+﻿# 项目相关配置
 ruoyi:
   # 系统名称
   name: 教学资源管理系统
@@ -13,12 +13,28 @@ ruoyi:
   # 验证码类型：math 数字计算，char 字符验证
   captchaType: math
 
+storage:
+  # 存储类型：local / minio
+  type: local
+  # 可选：自定义文件访问域名，留空则使用当前服务地址
+  domain:
+  local:
+    # 留空默认使用 ruoyi.profile/upload
+    baseDir:
+  minio:
+    enabled: false
+    endpoint: http://127.0.0.1:9000
+    accessKey: minioadmin
+    secretKey: minioadmin
+    bucket: teaching-resource
+    publicUrl:
+
 # 开发环境配置
 server:
-  # 服务器 HTTP 端口，默认 8080
+  # 服务器的 HTTP 端口，默认为 8080
   port: 8080
   servlet:
-    # 应用访问路径
+    # 应用的访问路径
     context-path: /
   tomcat:
     # URI 编码
@@ -55,9 +71,9 @@ spring:
   servlet:
     multipart:
       # 单个文件上传大小
-      max-file-size: 10MB
+      max-file-size: 200MB
       # 单次请求总上传大小
-      max-request-size: 20MB
+      max-request-size: 500MB
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
@@ -79,31 +95,21 @@ spring:
       timeout: 10s
       lettuce:
         pool:
-          # 最小空闲连接
           min-idle: 0
-          # 最大空闲连接
           max-idle: 8
-          # 最大活动连接
           max-active: 8
-          # 最大等待时间（负数表示无限制）
           max-wait: -1ms
 
 # Token 配置
 token:
-  # 请求头名称
   header: Authorization
-  # 密钥
   secret: abcdefghijklmnopqrstuvwxyz
-  # 有效期（分钟）
   expireTime: 30
 
 # MyBatis 配置
 mybatis:
-  # 实体别名包
   typeAliasesPackage: com.ruoyi.**.domain
-  # Mapper XML 路径
   mapperLocations: classpath*:mapper/**/*Mapper.xml
-  # 全局配置文件
   configLocation: classpath:mybatis/mybatis-config.xml
 
 # PageHelper 分页插件
@@ -128,16 +134,11 @@ springdoc:
 
 # 防盗链配置
 referer:
-  # 防盗链开关
   enabled: false
-  # 允许的域名列表
   allowed-domains: localhost,127.0.0.1
 
 # XSS 过滤配置
 xss:
-  # 过滤开关
   enabled: true
-  # 排除路径（多个使用英文逗号分隔）
   excludes: /system/notice
-  # 需要过滤的路径
   urlPatterns: /system/*,/monitor/*,/tool/*

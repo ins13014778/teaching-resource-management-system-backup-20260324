@@ -190,6 +190,7 @@ export default {
     handleUploadSuccess(res, file) {
       if (res.code === 200) {
         this.uploadList.push({ name: res.fileName, url: res.fileName })
+        this.$emit("upload-success", res)
         this.uploadedSuccessfully()
       } else {
         this.number--

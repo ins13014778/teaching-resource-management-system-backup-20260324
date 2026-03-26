@@ -36,11 +36,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="noticeType != null and noticeType != ''">
 				AND notice_type = #{noticeType}
 			</if>
+			<if test="status != null and status != ''">
+				AND status = #{status}
+			</if>
 			<if test="createBy != null and createBy != ''">
 				AND create_by like concat('%', #{createBy}, '%')
 			</if>
 		</where>
 		order by notice_id desc
+    </select>
+
+    <select id="countPublishedNotice" resultType="int">
+        select count(*) from sys_notice where status = '0'
     </select>
     
     <insert id="insertNotice" parameterType="SysNotice">

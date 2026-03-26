@@ -7,6 +7,24 @@ import Layout from '@/layout'
 
 export const constantRoutes = [
   {
+    path: '/',
+    component: () => import('@/views/portal/home'),
+    hidden: true,
+    meta: { title: '官网首页' }
+  },
+  {
+    path: '/announcements',
+    component: () => import('@/views/portal/notices'),
+    hidden: true,
+    meta: { title: '公告中心' }
+  },
+  {
+    path: '/announcements/:noticeId(\\d+)',
+    component: () => import('@/views/portal/noticeDetail'),
+    hidden: true,
+    meta: { title: '公告详情' }
+  },
+  {
     path: '/redirect',
     component: Layout,
     hidden: true,
@@ -58,12 +76,11 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '',
+    path: '/index',
     component: Layout,
-    redirect: 'index',
     children: [
       {
-        path: 'index',
+        path: '',
         component: () => import('@/views/index'),
         name: 'Index',
         meta: { title: '首页', icon: 'dashboard', affix: true }

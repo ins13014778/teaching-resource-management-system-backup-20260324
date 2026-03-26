@@ -15,6 +15,9 @@ public class EduCourseChapter extends BaseEntity
     private String chapterIntro;
     private Integer orderNum;
     private Integer resourceCount;
+    private String attachmentUrl;
+    private String attachmentName;
+    private java.math.BigDecimal attachmentSizeMb;
     private String status;
     private String delFlag;
 
@@ -32,6 +35,12 @@ public class EduCourseChapter extends BaseEntity
     public void setOrderNum(Integer orderNum) { this.orderNum = orderNum; }
     public Integer getResourceCount() { return resourceCount; }
     public void setResourceCount(Integer resourceCount) { this.resourceCount = resourceCount; }
+    public String getAttachmentUrl() { return attachmentUrl; }
+    public void setAttachmentUrl(String attachmentUrl) { this.attachmentUrl = attachmentUrl; }
+    public String getAttachmentName() { return attachmentName; }
+    public void setAttachmentName(String attachmentName) { this.attachmentName = attachmentName; }
+    public java.math.BigDecimal getAttachmentSizeMb() { return attachmentSizeMb; }
+    public void setAttachmentSizeMb(java.math.BigDecimal attachmentSizeMb) { this.attachmentSizeMb = attachmentSizeMb; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public String getDelFlag() { return delFlag; }
@@ -48,6 +57,9 @@ public class EduCourseChapter extends BaseEntity
             .append("chapterIntro", getChapterIntro())
             .append("orderNum", getOrderNum())
             .append("resourceCount", getResourceCount())
+            .append("attachmentUrl", getAttachmentUrl())
+            .append("attachmentName", getAttachmentName())
+            .append("attachmentSizeMb", getAttachmentSizeMb())
             .append("status", getStatus())
             .append("delFlag", getDelFlag())
             .append("createBy", getCreateBy())

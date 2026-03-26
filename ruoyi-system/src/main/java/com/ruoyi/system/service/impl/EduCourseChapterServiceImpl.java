@@ -75,8 +75,7 @@ public class EduCourseChapterServiceImpl implements IEduCourseChapterService
         {
             throw new ServiceException("课程不存在");
         }
-        if (SecurityUtils.hasRole("teacher") && !SecurityUtils.isAdmin()
-            && !SecurityUtils.getUserId().equals(course.getTeacherUserId()))
+        if (SecurityUtils.hasRole("teacher") && !SecurityUtils.isAdmin() && !SecurityUtils.getUserId().equals(course.getTeacherUserId()))
         {
             throw new ServiceException("只能维护自己课程下的章节");
         }

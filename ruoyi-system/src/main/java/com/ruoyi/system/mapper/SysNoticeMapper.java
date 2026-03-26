@@ -27,6 +27,13 @@ public interface SysNoticeMapper
     public List<SysNotice> selectNoticeList(SysNotice notice);
 
     /**
+     * 查询公开公告数量
+     *
+     * @return 结果
+     */
+    public int countPublishedNotice();
+
+    /**
      * 新增公告
      * 
      * @param notice 公告信息
