@@ -79,7 +79,7 @@ redis-server --version
 
 ---
 
-## 4. 数据库部署（导入到本地 MySQL）
+## 4. 数据库部署（本地 MySQL）
 
 ### 4.1 检查并启动本机 MySQL
 
@@ -89,13 +89,13 @@ redis-server --version
 Get-Service -Name MySQL80
 ```
 
-如果没启动：
+如果没有启动：
 
 ```powershell
 Start-Service -Name MySQL80
 ```
 
-如果你的服务名不是 `MySQL80`，先查找：
+如果你的服务名不是 `MySQL80`，可以先查找：
 
 ```powershell
 Get-Service | Where-Object { $_.Name -match 'mysql|mysqld' -or $_.DisplayName -match 'MySQL' }
@@ -107,7 +107,7 @@ Get-Service | Where-Object { $_.Name -match 'mysql|mysqld' -or $_.DisplayName -m
 mysql -u root -p
 ```
 
-进入 MySQL 后执行：
+登录后执行：
 
 ```sql
 CREATE DATABASE IF NOT EXISTS `ry-vue`
@@ -120,18 +120,12 @@ SHOW DATABASES;
 
 ### 4.3 一键初始化数据库（推荐）
 
-所有 bat 脚本都在：
-
-`D:\RuoYi-Vue-master\bin`
-
-一键初始化数据库：
-
 ```bat
 cd /d D:\RuoYi-Vue-master
 bin\init-db.bat
 ```
 
-如需指定库名和 SQL：
+如果你要指定数据库名和 SQL 文件：
 
 ```bat
 cd /d D:\RuoYi-Vue-master
@@ -154,30 +148,20 @@ bin\init-db.bat ry-vue backup\2026-03-26\database\ry-vue-full-20260326.sql
 
 ### 4.4 手动导入 SQL（备用）
 
-导入全量备份：
-
 ```bat
 cd /d D:\RuoYi-Vue-master
 "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" --binary-mode=1 --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p ry-vue < backup\2026-03-26\database\ry-vue-full-20260326.sql
 ```
 
-如果没有全量备份，也可以按脚本逐个导入：
-
-```bat
-cd /d D:\RuoYi-Vue-master
-"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -h127.0.0.1 -P3306 -uroot -p ry-vue < sql\ry_20260320.sql
-"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -h127.0.0.1 -P3306 -uroot -p ry-vue < sql\quartz.sql
-```
-
 ### 4.5 数据库测试命令（已验证）
 
-进入 MySQL 手动检查：
+进入 MySQL：
 
 ```bat
 mysql -u root -p
 ```
 
-然后执行：
+执行：
 
 ```sql
 SHOW DATABASES LIKE 'ry-vue';
@@ -198,14 +182,14 @@ SELECT COUNT(*) FROM sys_user;
 
 后端依赖 Redis，默认地址：`localhost:6379`
 
-推荐先启动 Redis：
+建议先启动 Redis：
 
 ```bat
 cd /d D:\RuoYi-Vue-master
 bin\start-redis.bat
 ```
 
-如果 Redis 没有先启动，后端可能报错：
+如果 Redis 没有启动，后端可能报错：
 
 ```text
 Unable to connect to Redis
@@ -444,7 +428,7 @@ bin\package-zip.bat
 
 ---
 
-## 12. 本次实际验证结论
+## 12. 当前验证结论
 
 本次已实际验证：
 
