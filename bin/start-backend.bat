@@ -4,7 +4,6 @@ setlocal EnableDelayedExpansion
 call "%~dp0env.cmd"
 
 set "JAR_FILE=%ROOT_DIR%\ruoyi-admin\target\ruoyi-admin.jar"
-set "JAVA_OPTS=-Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8"
 
 echo.
 echo [INFO] Prepare to start backend...
@@ -30,31 +29,38 @@ if not defined JAVA_CMD (
   exit /b 1
 )
 
-if /I "%REBUILD%"=="1" goto build_and_run
-if exist "%JAR_FILE%" goto run_jar
+set "BACKEND_MODE=run"
+if /I "%REBUILD%"=="1" set "BACKEND_MODE=build-and-run"
+if not exist "%JAR_FILE%" set "BACKEND_MODE=build-and-run"
 
-:build_and_run
-if not defined MVN_CMD (
+if /I "%BACKEND_MODE%"=="build-and-run" if not defined MVN_CMD (
   echo [ERROR] mvn.cmd not found and no runnable jar exists.
   echo [HINT] Install Maven or build ruoyi-admin\target\ruoyi-admin.jar first.
   exit /b 1
 )
 
 if "%DRY_RUN%"=="1" (
-  echo [DRY RUN] start "TRMS-Backend" cmd /k "cd /d ""%ROOT_DIR%"" ^&^& call ""%MVN_CMD%"" -T 1C -DskipTests package ^&^& cd /d ""%ROOT_DIR%\ruoyi-admin\target"" ^&^& ""%JAVA_CMD%"" %JAVA_OPTS% -jar ruoyi-admin.jar"
+  echo [DRY RUN] start "TRMS-Backend" "%COMSPEC%" /k call "%~dp0backend-console.bat" %BACKEND_MODE%
   exit /b 0
 )
 
-start "TRMS-Backend" cmd /k "cd /d ""%ROOT_DIR%"" && call ""%MVN_CMD%"" -T 1C -DskipTests package && cd /d ""%ROOT_DIR%\ruoyi-admin\target"" && ""%JAVA_CMD%"" %JAVA_OPTS% -jar ruoyi-admin.jar"
-echo [SUCCESS] Backend start command executed.
-exit /b 0
+start "TRMS-Backend" "%COMSPEC%" /k call "%~dp0backend-console.bat" %BACKEND_MODE%
+echo [INFO] Waiting for backend to listen on port 8080...
 
-:run_jar
-if "%DRY_RUN%"=="1" (
-  echo [DRY RUN] start "TRMS-Backend" cmd /k "cd /d ""%ROOT_DIR%\ruoyi-admin\target"" ^&^& ""%JAVA_CMD%"" %JAVA_OPTS% -jar ruoyi-admin.jar"
-  exit /b 0
+set "BACKEND_STARTED="
+for /l %%I in (1,1,180) do (
+  for /f "usebackq delims=" %%J in (`powershell -NoProfile -Command "$listener = Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1; if($listener){ 'LISTEN:' + $listener.OwningProcess } else { 'WAIT' }"`) do set "BACKEND_LISTEN_STATUS=%%J"
+  if /I "!BACKEND_LISTEN_STATUS:~0,7!"=="LISTEN:" (
+    set "BACKEND_STARTED=1"
+    set "BACKEND_PID=!BACKEND_LISTEN_STATUS:~7!"
+    goto backend_ready
+  )
+  timeout /t 1 /nobreak >nul
 )
 
-start "TRMS-Backend" cmd /k "cd /d ""%ROOT_DIR%\ruoyi-admin\target"" && ""%JAVA_CMD%"" %JAVA_OPTS% -jar ruoyi-admin.jar"
-echo [SUCCESS] Backend start command executed.
+echo [ERROR] Backend failed to listen on port 8080 within 180 seconds. Please check the new TRMS-Backend window output.
+exit /b 1
+
+:backend_ready
+echo [SUCCESS] Backend is listening on port 8080 with PID !BACKEND_PID!.
 exit /b 0
