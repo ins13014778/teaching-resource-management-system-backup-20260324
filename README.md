@@ -1,32 +1,35 @@
 # 教学资源管理系统
 
-> 基于 RuoYi-Vue 深度定制的教学资源管理平台。当前仓库已验证可在本机完成：数据库初始化、Redis 启动、后端启动、前端启动、前后端联调、clean 打包。
+> 基于 RuoYi-Vue 深度定制的教学资源管理平台。本文档面向 **Windows 小白用户**，用于说明如何在一台全新的 Windows 电脑上完成环境安装、数据库导入、项目启动、构建打包与常见问题排查。
 
 ---
 
 ## 1. 仓库说明
 
-当前项目目录：`D:\RuoYi-Vue-master`
+- GitHub 仓库：<https://github.com/ins13014778/teaching-resource-management-system-backup-20260324>
+- 技术栈：
+  - 后端：Spring Boot + Maven 多模块
+  - 前端：Vue 2 + Element UI
+  - 数据库：MySQL 8
+  - 缓存：Redis
+- 默认数据库名：`ry-vue`
+- 当前推荐导入 SQL：`sql/ry-vue.sql`
 
-GitHub 仓库：
-
-[https://github.com/ins13014778/teaching-resource-management-system-backup-20260324](https://github.com/ins13014778/teaching-resource-management-system-backup-20260324)
-
-仓库当前包含：
-
-- 后端源码（Spring Boot + Maven 多模块）
-- 前端源码（Vue 2 + Element UI）
-- MySQL 备份 / SQL 脚本
-- 本地部署脚本（bat）
-- 部署文档
+> 说明：本文中的“你的项目目录”请替换成你自己电脑上的实际路径，例如：
+>
+> - `D:\RuoYi-Vue-master`
+> - `E:\project\RuoYi-Vue-master`
+> - `C:\work\teaching-resource-management-system`
 
 ---
 
-## 2. 已验证可访问地址
+## 2. 部署后可访问地址
 
-- 前端首页：`http://127.0.0.1/`
-- 后端 Swagger：`http://127.0.0.1:8080/swagger-ui.html`
-- 前端代理验证码接口：`http://127.0.0.1/dev-api/captchaImage`
+项目启动成功后，通常可以访问：
+
+- 前端首页：<http://127.0.0.1/>
+- 后端 Swagger：<http://127.0.0.1:8080/swagger-ui.html>
+- 前端代理验证码接口：<http://127.0.0.1/dev-api/captchaImage>
 
 ---
 
@@ -34,10 +37,10 @@ GitHub 仓库：
 
 建议安装以下软件：
 
-- JDK 17 或 21
+- JDK 17
 - Maven 3.9+
-- Node.js 18+
-- npm
+- Node.js 18.x
+- npm（随 Node.js 自动安装）
 - MySQL 8.0
 - Redis
 
@@ -52,7 +55,7 @@ mysql --version
 redis-server --version
 ```
 
-如果 `mysql` 没有配置到环境变量，也可以使用：
+如果 `mysql` 没有加入环境变量，也可以这样检查：
 
 ```bat
 "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" --version
@@ -60,141 +63,156 @@ redis-server --version
 
 ---
 
-## 4. 快速开始（已验证）
+## 4. Windows 小白部署教程
 
-### 4.1 一键导库 + 一键启动
+### 4.1 安装 JDK 17
 
-```bat
-cd /d D:\RuoYi-Vue-master
-bin\init-all.bat
-```
+建议下载 **Windows x64 的 JDK 17 安装包**（例如 Temurin 17 或 Microsoft OpenJDK 17）。
 
-### 4.2 只导数据库
+安装完成后配置环境变量：
 
-```bat
-cd /d D:\RuoYi-Vue-master
-bin\init-db.bat
-```
+- 系统变量新增：
+  - `JAVA_HOME=C:\Program Files\Java\jdk-17`
+- `Path` 新增：
+  - `%JAVA_HOME%\bin`
 
-### 4.3 一键启动全部服务
+验证：
 
 ```bat
-cd /d D:\RuoYi-Vue-master
-bin\start-all.bat
-```
-
-### 4.4 一键重启全部服务
-
-```bat
-cd /d D:\RuoYi-Vue-master
-bin\restart-all.bat
-```
-
-### 4.5 打包 clean release 包
-
-```bat
-cd /d D:\RuoYi-Vue-master
-bin\package-zip.bat
+java -version
+javac -version
+echo %JAVA_HOME%
 ```
 
 ---
 
-## 5. Bat 脚本位置说明
+### 4.2 安装 Maven 3.9+
 
-所有 bat 脚本都在下面这个目录：
+Windows 请下载：
 
-`D:\RuoYi-Vue-master\bin`
+```text
+apache-maven-3.9.x-bin.zip
+```
 
-当前常用脚本如下：
+> 不要选：
+>
+> - `tar.gz`
+> - `src`
+> - `sha512`
+> - `asc`
 
-- `init-db.bat`：一键初始化数据库
-- `init-all.bat`：一键导库 + 启动全部服务
-- `start-all.bat`：一键启动全部服务
-- `restart-all.bat`：一键重启全部服务
-- `stop-all.bat`：停止全部服务
-- `start-redis.bat`：启动 Redis
-- `start-backend.bat`：启动后端
-- `start-frontend.bat`：启动前端
-- `restore-db.bat`：恢复数据库
-- `package-zip.bat`：按顺序先初始化，再打 clean release 包
+解压后建议放到固定目录，例如：
+
+```text
+D:\DevTools\apache-maven-3.9.14
+```
+
+或者：
+
+```text
+C:\Program Files\Apache\maven
+```
+
+配置环境变量：
+
+- 系统变量新增：
+  - `MAVEN_HOME=你的 Maven 根目录`
+- `Path` 新增：
+  - `%MAVEN_HOME%\bin`
+
+验证：
+
+```bat
+mvn -v
+echo %MAVEN_HOME%
+```
 
 ---
 
-## 6. 数据库部署（本地 MySQL）
+### 4.3 安装 Node.js 18
 
-### 6.1 检查并启动本机 MySQL
+推荐版本：
 
-查看 MySQL 服务：
+- Node.js 18.x
+- Windows x64
+- Installer (.msi)
 
-```powershell
-Get-Service -Name MySQL80
-```
+> 对这个项目，**Node 18 最稳**。
+> 不建议优先使用过新的 Node 24。
 
-如果没有启动：
+安装时保持默认勾选即可，尤其不要取消：
 
-```powershell
-Start-Service -Name MySQL80
-```
+- Install Node.js runtime
+- Install npm package manager
+- Add to PATH
 
-如果你的服务名不是 `MySQL80`，可以先查找：
-
-```powershell
-Get-Service | Where-Object { $_.Name -match 'mysql|mysqld' -or $_.DisplayName -match 'MySQL' }
-```
-
-### 6.2 登录 MySQL 并创建数据库
+验证：
 
 ```bat
-mysql -u root -p
+node -v
+npm -v
 ```
 
-登录后执行：
+---
+
+### 4.4 安装 MySQL 8
+
+安装 MySQL 8 后，请记住你的 root 密码。
+
+创建项目数据库：
 
 ```sql
 CREATE DATABASE IF NOT EXISTS `ry-vue`
 DEFAULT CHARACTER SET utf8mb4
 COLLATE utf8mb4_general_ci;
-SHOW DATABASES;
 ```
 
-确认结果中存在：`ry-vue`
+---
 
-### 6.3 一键初始化数据库（推荐）
+### 4.5 导入项目数据库
+
+本项目当前推荐导入文件：
+
+```text
+sql\ry-vue.sql
+```
+
+#### 方式一：使用命令行导入
+
+先进入项目目录：
 
 ```bat
-cd /d D:\RuoYi-Vue-master
-bin\init-db.bat
+cd /d 你的项目目录
 ```
 
-如果你要指定数据库名和 SQL 文件：
+然后执行：
 
 ```bat
-cd /d D:\RuoYi-Vue-master
-bin\init-db.bat ry-vue backup\2026-03-26\database\ry-vue-full-20260326.sql
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" --binary-mode=1 --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p ry-vue < sql\ry-vue.sql
 ```
 
-本次已实际验证通过，结果为：
+执行后输入你的 MySQL root 密码即可。
 
-- `Database   : ry-vue`
-- `Table count: 46`
-- `sys_user rows: 10`
+#### 方式二：使用 Navicat 导入
 
-### 6.4 手动导入 SQL（备用）
+1. 打开 Navicat
+2. 连接你的 MySQL
+3. 找到数据库 `ry-vue`
+4. 右键 `ry-vue`
+5. 选择“运行 SQL 文件”或“导入向导”
+6. 选择：
 
-```bat
-cd /d D:\RuoYi-Vue-master
-"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" --binary-mode=1 --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p ry-vue < backup\2026-03-26\database\ry-vue-full-20260326.sql
+```text
+你的项目目录\sql\ry-vue.sql
 ```
 
-### 6.5 数据库测试命令（已验证）
+7. 执行导入
 
-进入 MySQL：
+导入后验证：
 
 ```bat
 mysql -u root -p
 ```
-
-执行：
 
 ```sql
 SHOW DATABASES LIKE 'ry-vue';
@@ -205,153 +223,468 @@ SELECT COUNT(*) FROM sys_user;
 
 ---
 
-## 7. Redis 说明
+### 4.6 安装并启动 Redis
 
-后端依赖 Redis，默认地址：`localhost:6379`
+本项目后端依赖 Redis，默认地址：
 
-建议先启动 Redis：
+```text
+localhost:6379
+```
+
+如果你已经安装 Redis，可以尝试使用项目脚本启动：
 
 ```bat
-cd /d D:\RuoYi-Vue-master
+cd /d 你的项目目录
 bin\start-redis.bat
 ```
 
-如果 Redis 没有启动，后端可能报：
+验证：
+
+```bat
+redis-cli ping
+```
+
+如果返回：
+
+```text
+PONG
+```
+
+说明 Redis 正常。
+
+---
+
+## 5. 快速开始（推荐顺序）
+
+### 5.1 一键初始化 + 一键启动
+
+```bat
+cd /d 你的项目目录
+bin\init-all.bat
+```
+
+### 5.2 只初始化数据库
+
+```bat
+cd /d 你的项目目录
+bin\init-db.bat
+```
+
+### 5.3 一键启动全部服务
+
+```bat
+cd /d 你的项目目录
+bin\start-all.bat
+```
+
+### 5.4 一键重启全部服务
+
+```bat
+cd /d 你的项目目录
+bin\restart-all.bat
+```
+
+### 5.5 打包 clean release 包
+
+```bat
+cd /d 你的项目目录
+bin\package-zip.bat
+```
+
+---
+
+## 6. Bat 脚本位置说明
+
+所有 Windows 脚本都在：
+
+```text
+你的项目目录\bin
+```
+
+常用脚本如下：
+
+- `init-db.bat`：一键初始化数据库
+- `init-all.bat`：一键导库 + 启动全部服务
+- `start-all.bat`：一键启动全部服务
+- `restart-all.bat`：一键重启全部服务
+- `stop-all.bat`：停止全部服务
+- `start-redis.bat`：启动 Redis
+- `start-backend.bat`：启动后端
+- `start-frontend.bat`：启动前端
+- `restore-db.bat`：恢复数据库
+- `package-zip.bat`：生成 clean release 包
+
+---
+
+## 7. 后端启动
+
+### 7.1 运行测试
+
+```bat
+cd /d 你的项目目录
+mvn -pl ruoyi-admin -am test
+```
+
+### 7.2 打包后端
+
+```bat
+cd /d 你的项目目录
+mvn -pl ruoyi-admin -am -DskipTests package
+```
+
+生成文件：
+
+```text
+你的项目目录\ruoyi-admin\target\ruoyi-admin.jar
+```
+
+### 7.3 启动后端
+
+推荐脚本：
+
+```bat
+cd /d 你的项目目录
+bin\start-backend.bat
+```
+
+备用命令：
+
+```bat
+cd /d 你的项目目录
+java -jar ruoyi-admin\target\ruoyi-admin.jar
+```
+
+成功后可访问：
+
+- <http://127.0.0.1:8080/swagger-ui.html>
+
+---
+
+## 8. 前端启动
+
+### 8.1 安装依赖
+
+```bat
+cd /d 你的项目目录\ruoyi-ui
+npm install
+```
+
+如果下载慢，可以使用：
+
+```bat
+npm install --registry=https://registry.npmmirror.com
+```
+
+> 不建议直接用 `cnpm`，容易引起兼容问题。
+
+### 8.2 启动前端
+
+推荐脚本：
+
+```bat
+cd /d 你的项目目录
+bin\start-frontend.bat
+```
+
+备用命令：
+
+```bat
+cd /d 你的项目目录\ruoyi-ui
+npm run dev
+```
+
+### 8.3 构建前端
+
+```bat
+cd /d 你的项目目录\ruoyi-ui
+npm run build:prod
+```
+
+生成目录：
+
+```text
+你的项目目录\ruoyi-ui\dist
+```
+
+---
+
+## 9. 打包规则（clean 默认）
+
+`bin\package-zip.bat` 默认只会生成 **clean release 包**，不会把这些本地运行产物打进去：
+
+- `node_modules`
+- `logs`
+- `.git`
+- `release`
+- 其他运行缓存
+
+也就是说，默认不会生成“把本地环境全都打包进去”的大包。
+
+---
+
+## 10. Navicat 导出数据库说明
+
+如果你要备份当前项目数据库，请导出：
+
+```text
+ry-vue
+```
+
+不要导出这些系统库：
+
+- `information_schema`
+- `mysql`
+- `performance_schema`
+- `sys`
+
+导出步骤：
+
+1. 找到数据库 `ry-vue`
+2. 右键
+3. 选择“转储 SQL 文件” / “导出向导”
+4. 导出为 `.sql`
+
+建议命名：
+
+```text
+ry-vue.sql
+```
+
+---
+
+## 11. 常见报错与解决办法
+
+### 11.1 `java 不是内部或外部命令`
+
+原因：JDK 没装好，或者 `JAVA_HOME` / `Path` 没配好。
+
+检查：
+
+```bat
+echo %JAVA_HOME%
+where java
+```
+
+---
+
+### 11.2 `mvn 不是内部或外部命令`
+
+原因：Maven 没配好。
+
+检查：
+
+```bat
+echo %MAVEN_HOME%
+where mvn
+```
+
+---
+
+### 11.3 `npm 不是内部或外部命令`
+
+原因：Node.js 没装好或没加入 `Path`。
+
+检查：
+
+```bat
+where node
+where npm
+```
+
+---
+
+### 11.4 Redis 连接失败
+
+可能报错：
 
 ```text
 Unable to connect to Redis
 Connection refused: localhost/127.0.0.1:6379
 ```
 
-推荐顺序：
+原因：Redis 没启动。
 
-```text
-先 Redis，再后端，再前端
+处理：
+
+```bat
+cd /d 你的项目目录
+bin\start-redis.bat
 ```
 
 ---
 
-## 8. 后端启动
+### 11.5 数据库连接失败
 
-### 8.1 运行测试
+常见原因：
 
-```bat
-cd /d D:\RuoYi-Vue-master
-mvn -pl ruoyi-admin -am test
-```
+- MySQL 没启动
+- `ry-vue` 库没创建
+- root 密码不对
+- 本机数据库账号密码和配置文件不一致
 
-### 8.2 打包后端
-
-```bat
-cd /d D:\RuoYi-Vue-master
-mvn -pl ruoyi-admin -am -DskipTests package
-```
-
-生成：
+请检查：
 
 ```text
-D:\RuoYi-Vue-master\ruoyi-admin\target\ruoyi-admin.jar
+ruoyi-admin\src\main\resources\application-druid.yml
 ```
 
-### 8.3 启动后端
+重点看：
 
-推荐脚本：
-
-```bat
-cd /d D:\RuoYi-Vue-master
-bin\start-backend.bat
+```yaml
+url: jdbc:mysql://localhost:3306/ry-vue
+username: root
+password: 你的实际密码
 ```
-
-备用直接命令：
-
-```bat
-cd /d D:\RuoYi-Vue-master
-java -jar ruoyi-admin\target\ruoyi-admin.jar
-```
-
-本次已验证 Swagger 返回 `200`：
-
-- `http://127.0.0.1:8080/swagger-ui.html`
 
 ---
 
-## 9. 前端启动
+### 11.6 前端页面打不开
 
-### 9.1 安装依赖
+常见原因：
+
+- 前端没真正启动成功
+- 80 端口被占用
+- Node 版本太新
+- 依赖没装好
+
+处理：
 
 ```bat
-cd /d D:\RuoYi-Vue-master\ruoyi-ui
+cd /d 你的项目目录\ruoyi-ui
 npm install
-```
-
-### 9.2 启动前端
-
-推荐脚本：
-
-```bat
-cd /d D:\RuoYi-Vue-master
-bin\start-frontend.bat
-```
-
-备用直接命令：
-
-```bat
-cd /d D:\RuoYi-Vue-master\ruoyi-ui
 npm run dev
 ```
 
-### 9.3 构建前端
+---
+
+## 12. 推荐部署顺序
+
+建议严格按下面顺序执行：
+
+1. 安装 JDK 17
+2. 安装 Maven 3.9+
+3. 安装 Node.js 18
+4. 安装 MySQL 8
+5. 安装 Redis
+6. 配置环境变量
+7. 导入 `sql\ry-vue.sql`
+8. 启动 Redis
+9. 启动后端
+10. 启动前端
+
+---
+
+## 13. 最终验证清单
+
+全部部署完成后，请按下面顺序验证：
+
+### 13.1 检查数据库
+
+```sql
+USE `ry-vue`;
+SHOW TABLES;
+SELECT COUNT(*) FROM sys_user;
+```
+
+### 13.2 检查 Redis
 
 ```bat
-cd /d D:\RuoYi-Vue-master\ruoyi-ui
+redis-cli ping
+```
+
+返回：
+
+```text
+PONG
+```
+
+### 13.3 检查后端
+
+访问：
+
+- <http://127.0.0.1:8080/swagger-ui.html>
+
+### 13.4 检查前端
+
+访问：
+
+- <http://127.0.0.1/>
+
+### 13.5 检查前后端联调
+
+访问：
+
+- <http://127.0.0.1/dev-api/captchaImage>
+
+如果接口返回正常数据，说明前后端联调成功。
+
+---
+
+## 14. 常用命令速查
+
+### 环境检查
+
+```bat
+java -version
+mvn -v
+node -v
+npm -v
+mysql --version
+redis-server --version
+```
+
+### 初始化数据库
+
+```bat
+cd /d 你的项目目录
+bin\init-db.bat
+```
+
+### 启动 Redis
+
+```bat
+cd /d 你的项目目录
+bin\start-redis.bat
+```
+
+### 后端打包
+
+```bat
+cd /d 你的项目目录
+mvn -pl ruoyi-admin -am -DskipTests package
+```
+
+### 启动后端
+
+```bat
+cd /d 你的项目目录
+bin\start-backend.bat
+```
+
+### 安装前端依赖
+
+```bat
+cd /d 你的项目目录\ruoyi-ui
+npm install
+```
+
+### 启动前端
+
+```bat
+cd /d 你的项目目录\ruoyi-ui
+npm run dev
+```
+
+### 前端打包
+
+```bat
+cd /d 你的项目目录\ruoyi-ui
 npm run build:prod
 ```
 
-生成：
+### 一键启动全部
 
-```text
-D:\RuoYi-Vue-master\ruoyi-ui\dist
+```bat
+cd /d 你的项目目录
+bin\start-all.bat
 ```
-
-本次已验证：
-
-- 前端首页 `http://127.0.0.1/` 返回 `200`
-- 前端代理接口 `http://127.0.0.1/dev-api/captchaImage` 返回 `200`
-
----
-
-## 10. 打包规则（clean 默认）
-
-`bin\package-zip.bat` 默认只生成 **clean release 包**，不会把这些本机环境产物打进去：
-
-- `node_modules`
-- `logs`
-- `.git`
-- `release`
-- 其他源码运行缓存
-
-也就是说，后续默认不再生成“把环境一起打进去”的大包。
-
----
-
-## 11. 部署文档
-
-完整部署说明见：
-
-- `docs/deployment-guide.md`
-- `C:\Users\Administrator\Desktop\教学资源管理系统部署教程.md`
-
----
-
-## 12. 当前验证结论
-
-本仓库当前已经实际验证通过：
-
-- 数据库初始化成功
-- Redis 启动成功
-- 后端启动成功
-- 前端启动成功
-- 前后端联调成功
-- `start-all.bat` / `restart-all.bat` 可用
-- `init-db.bat` / `init-all.bat` 可用
-- `package-zip.bat` 默认打 clean 包
