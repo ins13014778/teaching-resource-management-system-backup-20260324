@@ -25,7 +25,7 @@ if not exist "%DB_SQL_FILE%" (
 
 echo [INFO] MySQL client: %MYSQL_EXE%
 echo [INFO] Creating database if not exists...
-"%MYSQL_EXE%" -h%DB_HOST% -P%DB_PORT% -u%DB_USER% -p%DB_PASS% -e "CREATE DATABASE IF NOT EXISTS `%DB_NAME%` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+"%MYSQL_EXE%" -h%DB_HOST% -P%DB_PORT% %MYSQL_AUTH_ARGS% -e "CREATE DATABASE IF NOT EXISTS `%DB_NAME%` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
 if errorlevel 1 (
   echo [ERROR] Failed to create database. Check MySQL service, account, password, or port.
   exit /b 1
@@ -39,7 +39,7 @@ if errorlevel 1 (
 )
 
 echo [INFO] Importing SQL, please wait...
-"%MYSQL_EXE%" --binary-mode=1 --default-character-set=utf8mb4 -h%DB_HOST% -P%DB_PORT% -u%DB_USER% -p%DB_PASS% --database=%DB_NAME% < "%TMP_SQL_FILE%"
+"%MYSQL_EXE%" --binary-mode=1 --default-character-set=utf8mb4 -h%DB_HOST% -P%DB_PORT% %MYSQL_AUTH_ARGS% --database=%DB_NAME% < "%TMP_SQL_FILE%"
 if errorlevel 1 (
   del /q "%TMP_SQL_FILE%" >nul 2>nul
   echo [ERROR] Import failed. Check SQL file, database privilege, or connection config.

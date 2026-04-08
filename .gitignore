@@ -43,6 +43,7 @@ nbdist/
 logs/
 *.xml.versionsBackup
 *.swp
+bin/env.local.cmd
 
 !*/build/*.java
 !*/build/*.html

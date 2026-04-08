@@ -47,7 +47,7 @@ if defined MYSQL_SERVICE_NAME (
 )
 
 echo [INFO] Checking MySQL connectivity...
-"%MYSQL_EXE%" -h%DB_HOST% -P%DB_PORT% -u%DB_USER% -p%DB_PASS% -e "SELECT 1;" >nul 2>nul
+"%MYSQL_EXE%" -h%DB_HOST% -P%DB_PORT% %MYSQL_AUTH_ARGS% -e "SELECT 1;" >nul 2>nul
 if errorlevel 1 (
   echo [ERROR] Unable to connect to MySQL at %DB_HOST%:%DB_PORT%.
   echo [HINT] Check MySQL service, host, port, username, and password in bin\env.cmd
@@ -64,7 +64,7 @@ echo [INFO] Verifying imported tables...
 set "TABLE_LIST_FILE=%TEMP%\%DB_NAME%-tables-%RANDOM%%RANDOM%.txt"
 set "SYS_USER_FILE=%TEMP%\%DB_NAME%-sys-user-%RANDOM%%RANDOM%.txt"
 
-"%MYSQL_EXE%" --batch --skip-column-names -h%DB_HOST% -P%DB_PORT% -u%DB_USER% -p%DB_PASS% -D %DB_NAME% -e "SHOW TABLES;" > "%TABLE_LIST_FILE%" 2>nul
+"%MYSQL_EXE%" --batch --skip-column-names -h%DB_HOST% -P%DB_PORT% %MYSQL_AUTH_ARGS% -D %DB_NAME% -e "SHOW TABLES;" > "%TABLE_LIST_FILE%" 2>nul
 if errorlevel 1 (
   del /q "%TABLE_LIST_FILE%" >nul 2>nul
   del /q "%SYS_USER_FILE%" >nul 2>nul
@@ -81,7 +81,7 @@ if "!TABLE_COUNT!"=="0" (
   exit /b 1
 )
 
-"%MYSQL_EXE%" --batch --skip-column-names -h%DB_HOST% -P%DB_PORT% -u%DB_USER% -p%DB_PASS% -D %DB_NAME% -e "SELECT COUNT(*) FROM sys_user;" > "%SYS_USER_FILE%" 2>nul
+"%MYSQL_EXE%" --batch --skip-column-names -h%DB_HOST% -P%DB_PORT% %MYSQL_AUTH_ARGS% -D %DB_NAME% -e "SELECT COUNT(*) FROM sys_user;" > "%SYS_USER_FILE%" 2>nul
 if not errorlevel 1 (
   set /p SYS_USER_COUNT=<"%SYS_USER_FILE%"
 )
