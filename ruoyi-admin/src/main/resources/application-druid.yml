@@ -8,7 +8,7 @@ spring:
             master:
                 url: jdbc:mysql://localhost:3306/ry-vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
                 username: root
-                password: czp123..
+                password: 12345678
             # 从库数据源
             slave:
                 # 从数据源默认关闭，如需开启请补充连接信息
